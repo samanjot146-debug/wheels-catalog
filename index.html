@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>President Tire & Wheels Catalog</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #f7f7f7;
+      color: #111;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ff6801;
+      font-size: 40px;
+      font-weight: 600;
+      margin: 10px 0 10px;
+    }
+
+    .subtext {
+      text-align: center;
+      color: #555;
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .toolbar input,
+    .toolbar select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #d6d6d6;
+      background: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .toolbar input:focus,
+    .toolbar select:focus {
+      border-color: #ff6801;
+      box-shadow: 0 0 0 3px rgba(255, 104, 1, 0.12);
+    }
+
+    .results-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .results-count {
+      color: #444;
+      font-size: 15px;
+    }
+
+    .clear-btn {
+      border: 1px solid #ff6801;
+      background: #fff;
+      color: #ff6801;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .clear-btn:hover {
+      background: #fff5ef;
+    }
+
+    #status {
+      text-align: center;
+      color: #666;
+      margin: 24px 0;
+      font-size: 16px;
+    }
+
+    #wheels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+      gap: 24px;
+    }
+
+    .wheel-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border: 2px solid transparent;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .wheel-card:hover {
+      transform: translateY(-6px);
+      border-color: #ff6801;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+    }
+
+    .img-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .brand {
+      color: #777;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .title {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .specs {
+      color: #444;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      color: #ff6801;
+      font-size: 22px;
+      font-weight: 800;
+      margin: 8px 0 14px;
+    }
+
+    .actions {
+      margin-top: auto;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      flex: 1 1 auto;
+      text-align: center;
+      text-decoration: none;
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-call {
+      background: #ff6801;
+      color: #fff;
+      border-color: #ff6801;
+    }
+
+    .btn-call:hover {
+      background: #fff;
+      color: #ff6801;
+    }
+
+    .btn-quote {
+      background: #f2f2f2;
+      color: #111;
+      border-color: #d6d6d6;
+    }
+
+    .btn-quote:hover {
+      background: #fff5ef;
+      border-color: #ff6801;
+    }
+
+    @media (max-width: 900px) {
+      .toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .container {
+        padding: 24px 14px 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>President Tire & Wheels</h1>
+    <div class="subtext">Shop wheels by size, brand and finish</div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Search brand, model, size, finish..." />
+      <select id="diameterFilter">
+        <option value="">All Sizes</option>
+      </select>
+      <select id="brandFilter">
+        <option value="">All Brands</option>
+      </select>
+      <select id="finishFilter">
+        <option value="">All Finishes</option>
+      </select>
+    </div>
+
+    <div class="results-bar">
+      <div class="results-count" id="resultsCount">Loading wheels...</div>
+      <button class="clear-btn" id="clearFilters">Clear Filters</button>
+    </div>
+
+    <div id="status">Loading wheel catalog...</div>
+    <div id="wheels-grid"></div>
+  </div>
+
+  <script>
+    const CSV_URL = "https://drive.google.com/uc?export=download&id=1GDjNjZyVgGk9RJZ9RFaXeA2GM1pXjtMN";
+    const QUOTE_URL = "https://presidentwheels.ca/contact-us";
+    const PHONE_LINK = "tel:+12266981667";
+
+    let allWheels = [];
+
+    const searchInput = document.getElementById("searchInput");
+    const diameterFilter = document.getElementById("diameterFilter");
+    const brandFilter = document.getElementById("brandFilter");
+    const finishFilter = document.getElementById("finishFilter");
+    const wheelsGrid = document.getElementById("wheels-grid");
+    const statusEl = document.getElementById("status");
+    const resultsCount = document.getElementById("resultsCount");
+    const clearFiltersBtn = document.getElementById("clearFilters");
+
+    function safeValue(v) {
+      return (v || "").toString().trim();
+    }
+
+    function escapeHtml(str) {
+      return safeValue(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function uniqueSorted(values, numeric = false) {
+      const arr = [...new Set(values.filter(Boolean))];
+      if (numeric) {
+        return arr.sort((a, b) => Number(a) - Number(b));
+      }
+      return arr.sort((a, b) => a.localeCompare(b));
+    }
+
+    function fillSelect(selectEl, values, firstLabel) {
+      selectEl.innerHTML = `<option value="">${firstLabel}</option>`;
+      values.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function buildCard(wheel) {
+      const manufacturer = escapeHtml(wheel.Manufacturer);
+      const model = escapeHtml(wheel.Model);
+      const diameter = escapeHtml(wheel.Diameter);
+      const width = escapeHtml(wheel.Width);
+      const finish = escapeHtml(wheel.Finish);
+      const boltPattern = escapeHtml(wheel["Bolt Pattern"]);
+      const offset = escapeHtml(wheel.Offset);
+      const mapPrice = escapeHtml(wheel.MAP);
+      const img = safeValue(wheel["Image 1"]);
+      const bore = escapeHtml(wheel.Bore);
+
+      return `
+        <div class="wheel-card">
+          <div class="img-wrap">
+            <img src="${img}" alt="${manufacturer} ${model} ${diameter}x${width} ${finish}" loading="lazy">
+          </div>
+          <div class="brand">${manufacturer}</div>
+          <div class="title">${model}</div>
+          <div class="specs">
+            ${diameter}" x ${width}<br>
+            ${finish}<br>
+            Bolt Pattern: ${boltPattern}<br>
+            Offset: ${offset}${offset ? " mm" : ""}${bore ? `<br>Bore: ${bore}` : ""}
+          </div>
+          <div class="price">$${mapPrice}</div>
+          <div class="actions">
+            <a class="btn btn-call" href="${PHONE_LINK}">Call Now</a>
+            <a class="btn btn-quote" href="${QUOTE_URL}" target="_blank" rel="noopener">Request Quote</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWheels() {
+      const query = safeValue(searchInput.value).toLowerCase();
+      const diameter = safeValue(diameterFilter.value);
+      const brand = safeValue(brandFilter.value);
+      const finish = safeValue(finishFilter.value);
+
+      const filtered = allWheels.filter(wheel => {
+        const searchable = [
+          wheel.Manufacturer,
+          wheel.Model,
+          wheel.Description,
+          wheel.Diameter,
+          wheel.Width,
+          wheel.Finish,
+          wheel["Bolt Pattern"],
+          wheel.Offset
+        ].join(" ").toLowerCase();
+
+        const matchesQuery = !query || searchable.includes(query);
+        const matchesDiameter = !diameter || safeValue(wheel.Diameter) === diameter;
+        const matchesBrand = !brand || safeValue(wheel.Manufacturer) === brand;
+        const matchesFinish = !finish || safeValue(wheel.Finish) === finish;
+
+        return matchesQuery && matchesDiameter && matchesBrand && matchesFinish;
+      });
+
+      resultsCount.textContent = `${filtered.length.toLocaleString()} wheels found`;
+      wheelsGrid.innerHTML = filtered.map(buildCard).join("");
+
+      if (filtered.length === 0) {
+        wheelsGrid.innerHTML = "";
+        statusEl.style.display = "block";
+        statusEl.textContent = "No wheels match your filters.";
+      } else {
+        statusEl.style.display = "none";
+      }
+    }
+
+    function initFilters() {
+      const diameters = uniqueSorted(allWheels.map(w => safeValue(w.Diameter)), true);
+      const brands = uniqueSorted(allWheels.map(w => safeValue(w.Manufacturer)));
+      const finishes = uniqueSorted(allWheels.map(w => safeValue(w.Finish)));
+
+      fillSelect(diameterFilter, diameters, "All Sizes");
+      fillSelect(brandFilter, brands, "All Brands");
+      fillSelect(finishFilter, finishes, "All Finishes");
+    }
+
+    function clearFilters() {
+      searchInput.value = "";
+      diameterFilter.value = "";
+      brandFilter.value = "";
+      finishFilter.value = "";
+      renderWheels();
+    }
+
+    searchInput.addEventListener("input", renderWheels);
+    diameterFilter.addEventListener("change", renderWheels);
+    brandFilter.addEventListener("change", renderWheels);
+    finishFilter.addEventListener("change", renderWheels);
+    clearFiltersBtn.addEventListener("click", clearFilters);
+
+    Papa.parse(CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        allWheels = results.data.filter(w => safeValue(w["Image 1"]) && safeValue(w.Manufacturer) && safeValue(w.Model));
+        initFilters();
+        renderWheels();
+      },
+      error: function(err) {
+        statusEl.textContent = "Could not load wheel catalog.";
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
