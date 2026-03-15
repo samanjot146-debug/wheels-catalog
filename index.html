@@ -36,6 +36,68 @@
       margin-bottom: 20px;
     }
 
+    .vehicle-finder {
+      background: white;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      margin-bottom: 22px;
+      border: 2px solid transparent;
+    }
+
+    .vehicle-finder:hover {
+      border-color: #ff6801;
+    }
+
+    .finder-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #111;
+    }
+
+    .finder-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .finder-grid select,
+    .finder-grid button {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      border: 1px solid #d6d6d6;
+      background: #fff;
+    }
+
+    .finder-grid select:focus {
+      border-color: #ff6801;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 104, 1, 0.12);
+    }
+
+    .finder-grid button {
+      background: #ff6801;
+      color: white;
+      border: 1px solid #ff6801;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .finder-grid button:hover {
+      background: white;
+      color: #ff6801;
+    }
+
+    .fitment-note {
+      margin-top: 12px;
+      color: #666;
+      font-size: 14px;
+    }
+
     .toolbar-wrap {
       position: sticky;
       top: 0;
@@ -276,6 +338,9 @@
       .toolbar {
         grid-template-columns: 1fr 1fr 1fr;
       }
+      .finder-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     @media (max-width: 800px) {
@@ -285,7 +350,7 @@
     }
 
     @media (max-width: 600px) {
-      .toolbar {
+      .toolbar, .finder-grid {
         grid-template-columns: 1fr;
       }
 
@@ -307,7 +372,27 @@
 <body>
   <div class="container">
     <h1>President Tire & Wheels</h1>
-    <div class="subtext">Shop wheels by size, brand, finish and bolt pattern</div>
+    <div class="subtext">Find wheels that fit your vehicle</div>
+
+    <div class="vehicle-finder">
+      <div class="finder-title">Select Your Vehicle</div>
+      <div class="finder-grid">
+        <select id="yearSelect">
+          <option value="">Year</option>
+        </select>
+
+        <select id="makeSelect">
+          <option value="">Make</option>
+        </select>
+
+        <select id="modelSelect">
+          <option value="">Model</option>
+        </select>
+
+        <button id="findFitmentBtn">Find Wheels</button>
+      </div>
+      <div class="fitment-note" id="fitmentNote">Choose year, make and model to see matching wheels.</div>
+    </div>
 
     <div class="toolbar-wrap">
       <div class="toolbar">
@@ -352,14 +437,23 @@
   </div>
 
   <script>
-    const CSV_URL = "wheels.csv";
+    const WHEELS_CSV_URL = "wheels.csv";
+    const FITMENT_CSV_URL = "vehicle_fitment.csv";
     const QUOTE_URL = "https://presidentwheels.ca/contact-us";
     const PHONE_LINK = "tel:+12266981667";
     const ITEMS_PER_PAGE = 24;
 
     let allWheels = [];
+    let allFitments = [];
     let filteredWheels = [];
     let currentPage = 1;
+    let selectedVehicleFitment = null;
+
+    const yearSelect = document.getElementById("yearSelect");
+    const makeSelect = document.getElementById("makeSelect");
+    const modelSelect = document.getElementById("modelSelect");
+    const findFitmentBtn = document.getElementById("findFitmentBtn");
+    const fitmentNote = document.getElementById("fitmentNote");
 
     const searchInput = document.getElementById("searchInput");
     const diameterFilter = document.getElementById("diameterFilter");
@@ -437,6 +531,95 @@
       `;
     }
 
+    function initVehicleYears() {
+      const years = [];
+      allFitments.forEach(row => {
+        const start = Number(row.StartYear);
+        const end = Number(row.EndYear);
+        for (let y = start; y <= end; y++) years.push(String(y));
+      });
+      fillSelect(yearSelect, uniqueSorted(years, true), "Year");
+    }
+
+    function updateMakes() {
+      const year = safeValue(yearSelect.value);
+      makeSelect.innerHTML = `<option value="">Make</option>`;
+      modelSelect.innerHTML = `<option value="">Model</option>`;
+
+      if (!year) return;
+
+      const makes = uniqueSorted(
+        allFitments
+          .filter(row => Number(year) >= Number(row.StartYear) && Number(year) <= Number(row.EndYear))
+          .map(row => safeValue(row.Make))
+      );
+
+      makes.forEach(make => {
+        const opt = document.createElement("option");
+        opt.value = make;
+        opt.textContent = make;
+        makeSelect.appendChild(opt);
+      });
+    }
+
+    function updateModels() {
+      const year = safeValue(yearSelect.value);
+      const make = safeValue(makeSelect.value);
+      modelSelect.innerHTML = `<option value="">Model</option>`;
+
+      if (!year || !make) return;
+
+      const models = uniqueSorted(
+        allFitments
+          .filter(row =>
+            Number(year) >= Number(row.StartYear) &&
+            Number(year) <= Number(row.EndYear) &&
+            safeValue(row.Make) === make
+          )
+          .map(row => safeValue(row.Model))
+      );
+
+      models.forEach(model => {
+        const opt = document.createElement("option");
+        opt.value = model;
+        opt.textContent = model;
+        modelSelect.appendChild(opt);
+      });
+    }
+
+    function applyVehicleFitment() {
+      const year = safeValue(yearSelect.value);
+      const make = safeValue(makeSelect.value);
+      const model = safeValue(modelSelect.value);
+
+      if (!year || !make || !model) {
+        selectedVehicleFitment = null;
+        fitmentNote.textContent = "Choose year, make and model to see matching wheels.";
+        renderWheels(true);
+        return;
+      }
+
+      const fitment = allFitments.find(row =>
+        Number(year) >= Number(row.StartYear) &&
+        Number(year) <= Number(row.EndYear) &&
+        safeValue(row.Make) === make &&
+        safeValue(row.Model) === model
+      );
+
+      if (!fitment) {
+        selectedVehicleFitment = null;
+        fitmentNote.textContent = "No fitment found for that vehicle.";
+        renderWheels(true);
+        return;
+      }
+
+      selectedVehicleFitment = fitment;
+      fitmentNote.textContent =
+        `${year} ${make} ${model} — Bolt Pattern: ${fitment.BoltPattern}, Bore: ${fitment.Bore}, Diameter: ${fitment.MinDiameter}" to ${fitment.MaxDiameter}"`;
+
+      renderWheels(true);
+    }
+
     function getFilteredWheels() {
       const query = safeValue(searchInput.value).toLowerCase();
       const diameter = safeValue(diameterFilter.value);
@@ -463,7 +646,32 @@
         const matchesFinish = !finish || safeValue(wheel.Finish) === finish;
         const matchesBolt = !bolt || safeValue(wheel["Bolt Pattern"]) === bolt;
 
-        return matchesQuery && matchesDiameter && matchesBrand && matchesFinish && matchesBolt;
+        let matchesVehicle = true;
+        if (selectedVehicleFitment) {
+          const wheelBolt = safeValue(wheel["Bolt Pattern"]);
+          const wheelBore = Number(safeValue(wheel.Bore));
+          const wheelDiameter = Number(safeValue(wheel.Diameter));
+
+          const requiredBolt = safeValue(selectedVehicleFitment.BoltPattern);
+          const requiredBore = Number(safeValue(selectedVehicleFitment.Bore));
+          const minD = Number(safeValue(selectedVehicleFitment.MinDiameter));
+          const maxD = Number(safeValue(selectedVehicleFitment.MaxDiameter));
+
+          matchesVehicle =
+            wheelBolt.includes(requiredBolt) &&
+            wheelBore >= requiredBore &&
+            wheelDiameter >= minD &&
+            wheelDiameter <= maxD;
+        }
+
+        return (
+          matchesQuery &&
+          matchesDiameter &&
+          matchesBrand &&
+          matchesFinish &&
+          matchesBolt &&
+          matchesVehicle
+        );
       });
 
       if (sort === "price-low") filtered.sort((a, b) => Number(a.MAP) - Number(b.MAP));
@@ -476,6 +684,10 @@
 
     function updateActiveTags() {
       const tags = [];
+
+      if (selectedVehicleFitment) {
+        tags.push(`${yearSelect.value} ${makeSelect.value} ${modelSelect.value}`);
+      }
 
       if (safeValue(searchInput.value)) tags.push(`Search: ${safeValue(searchInput.value)}`);
       if (safeValue(diameterFilter.value)) tags.push(`${safeValue(diameterFilter.value)}"`);
@@ -589,8 +801,27 @@
       finishFilter.value = "";
       boltFilter.value = "";
       sortFilter.value = "";
+      yearSelect.value = "";
+      makeSelect.innerHTML = `<option value="">Make</option>`;
+      modelSelect.innerHTML = `<option value="">Model</option>`;
+      selectedVehicleFitment = null;
+      fitmentNote.textContent = "Choose year, make and model to see matching wheels.";
       renderWheels(true);
     }
+
+    yearSelect.addEventListener("change", () => {
+      updateMakes();
+      selectedVehicleFitment = null;
+      renderWheels(true);
+    });
+
+    makeSelect.addEventListener("change", () => {
+      updateModels();
+      selectedVehicleFitment = null;
+      renderWheels(true);
+    });
+
+    findFitmentBtn.addEventListener("click", applyVehicleFitment);
 
     searchInput.addEventListener("input", () => renderWheels(true));
     diameterFilter.addEventListener("change", () => renderWheels(true));
@@ -600,24 +831,45 @@
     sortFilter.addEventListener("change", () => renderWheels(true));
     clearFiltersBtn.addEventListener("click", clearFilters);
 
-    Papa.parse(CSV_URL, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: function(results) {
-        allWheels = results.data.filter(w =>
-          safeValue(w["Image 1"]) &&
-          safeValue(w.Manufacturer) &&
-          safeValue(w.Model)
-        );
+    Promise.all([
+      new Promise((resolve, reject) => {
+        Papa.parse(WHEELS_CSV_URL, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: results => resolve(results.data),
+          error: reject
+        });
+      }),
+      new Promise((resolve, reject) => {
+        Papa.parse(FITMENT_CSV_URL, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: results => resolve(results.data),
+          error: reject
+        });
+      })
+    ]).then(([wheelsData, fitmentData]) => {
+      allWheels = wheelsData.filter(w =>
+        safeValue(w["Image 1"]) &&
+        safeValue(w.Manufacturer) &&
+        safeValue(w.Model)
+      );
 
-        initFilters();
-        renderWheels(true);
-      },
-      error: function(err) {
-        statusEl.textContent = "Could not load wheel catalog.";
-        console.error(err);
-      }
+      allFitments = fitmentData.filter(f =>
+        safeValue(f.StartYear) &&
+        safeValue(f.EndYear) &&
+        safeValue(f.Make) &&
+        safeValue(f.Model)
+      );
+
+      initFilters();
+      initVehicleYears();
+      renderWheels(true);
+    }).catch(err => {
+      statusEl.textContent = "Could not load wheel catalog.";
+      console.error(err);
     });
   </script>
 </body>
