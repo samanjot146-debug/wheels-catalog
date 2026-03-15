@@ -1,868 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>President Tire & Wheels Catalog</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <style>
-    * { box-sizing: border-box; }
+<meta charset="UTF-8">
+<title>President Tire & Wheels - Wheels Catalog</title>
 
-    body {
-      margin: 0;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #000;
-      color: #fff;
-    }
+<style>
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 28px 16px 50px;
-    }
+body{
+font-family:Arial, sans-serif;
+background:#000;
+color:#fff;
+margin:0;
+padding:30px;
+}
 
-    h1 {
-      text-align: center;
-      color: #00FF7F;
-      font-size: 38px;
-      font-weight: 700;
-      margin: 8px 0 10px;
-    }
+h1{
+text-align:center;
+color:#00FF7F;
+margin-bottom:30px;
+}
 
-    .subtext {
-      text-align: center;
-      color: #bdbdbd;
-      font-size: 15px;
-      margin-bottom: 20px;
-    }
+.filters{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+justify-content:center;
+margin-bottom:30px;
+}
 
-    .vehicle-finder,
-    .filters-box {
-      background: #111;
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(0,255,127,0.08);
-      border: 1px solid #202020;
-      margin-bottom: 24px;
-    }
+.filters select{
+padding:10px;
+border-radius:8px;
+border:1px solid #333;
+background:#111;
+color:#fff;
+}
 
-    .vehicle-finder:hover,
-    .filters-box:hover {
-      border-color: #00FF7F;
-    }
+#wheels-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:25px;
+max-width:1200px;
+margin:auto;
+}
 
-    .finder-title,
-    .filters-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      color: #fff;
-    }
+.wheel-card{
+background:#111;
+border-radius:12px;
+padding:18px;
+text-align:center;
+border:1px solid #222;
+transition:all .25s;
+}
 
-    .finder-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 12px;
-      align-items: end;
-    }
+.wheel-card:hover{
+border-color:#00FF7F;
+transform:translateY(-4px);
+}
 
-    .finder-grid select,
-    .finder-grid button,
-    .filters-grid select,
-    .filters-grid input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      font-size: 15px;
-      border: 1px solid #2a2a2a;
-      background: #0b0b0b;
-      color: #fff;
-      outline: none;
-    }
+.wheel-card img{
+width:100%;
+height:160px;
+object-fit:contain;
+margin-bottom:12px;
+}
 
-    .finder-grid select:focus,
-    .filters-grid select:focus,
-    .filters-grid input:focus {
-      border-color: #00FF7F;
-      box-shadow: 0 0 0 3px rgba(0,255,127,0.16);
-    }
+.wheel-title{
+font-weight:bold;
+margin-bottom:6px;
+}
 
-    .finder-grid button {
-      background: #00FF7F;
-      color: #000;
-      border: 1px solid #00FF7F;
-      font-weight: 700;
-      cursor: pointer;
-    }
+.wheel-spec{
+font-size:14px;
+color:#ccc;
+margin-bottom:8px;
+}
 
-    .finder-grid button:hover {
-      background: #000;
-      color: #00FF7F;
-    }
+.price{
+color:#00FF7F;
+font-weight:bold;
+margin-bottom:10px;
+}
 
-    .fitment-note {
-      margin-top: 12px;
-      color: #bdbdbd;
-      font-size: 14px;
-    }
+.button{
+display:inline-block;
+background:#00FF7F;
+color:#000;
+padding:8px 12px;
+border-radius:8px;
+font-size:14px;
+text-decoration:none;
+font-weight:bold;
+}
 
-    .filters-grid {
-      display: grid;
-      grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
+.button:hover{
+opacity:.9;
+}
 
-    .results-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+.pagination{
+display:flex;
+justify-content:center;
+margin-top:35px;
+gap:10px;
+flex-wrap:wrap;
+}
 
-    .results-count {
-      color: #e6e6e6;
-      font-size: 15px;
-      font-weight: 600;
-    }
+.page-btn{
+background:#111;
+border:1px solid #333;
+color:#fff;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+}
 
-    .clear-btn {
-      border: 1px solid #00FF7F;
-      background: #000;
-      color: #00FF7F;
-      padding: 10px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-    }
+.page-btn.active{
+background:#00FF7F;
+color:#000;
+border-color:#00FF7F;
+}
 
-    .clear-btn:hover {
-      background: #00FF7F;
-      color: #000;
-    }
+.page-btn:hover{
+border-color:#00FF7F;
+color:#00FF7F;
+}
 
-    .active-tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .tag {
-      background: #0b0b0b;
-      border: 1px solid #00FF7F;
-      color: #00FF7F;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    #status {
-      text-align: center;
-      color: #bdbdbd;
-      margin: 24px 0;
-      font-size: 16px;
-    }
-
-    #wheels-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
-      gap: 24px;
-    }
-
-    .wheel-card {
-      background: #111;
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-      border: 2px solid transparent;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-    }
-
-    .wheel-card:hover {
-      transform: translateY(-6px);
-      border-color: #00FF7F;
-      box-shadow: 0 12px 28px rgba(0,255,127,0.16);
-    }
-
-    .img-wrap {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #0a0a0a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 14px;
-      border: 1px solid #1e1e1e;
-    }
-
-    .img-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
-    .brand {
-      color: #8d8d8d;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
-    }
-
-    .title {
-      font-size: 19px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      line-height: 1.25;
-      color: #fff;
-    }
-
-    .specs {
-      color: #cfcfcf;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .price {
-      color: #00FF7F;
-      font-size: 22px;
-      font-weight: 800;
-      margin: 8px 0 14px;
-    }
-
-    .actions {
-      margin-top: auto;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      flex: 1 1 auto;
-      text-align: center;
-      text-decoration: none;
-      padding: 11px 14px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 14px;
-      transition: 0.2s ease;
-      border: 1px solid transparent;
-    }
-
-    .btn-call {
-      background: #00FF7F;
-      color: #000;
-      border-color: #00FF7F;
-    }
-
-    .btn-call:hover {
-      background: #000;
-      color: #00FF7F;
-    }
-
-    .btn-quote {
-      background: #0b0b0b;
-      color: #fff;
-      border-color: #2a2a2a;
-    }
-
-    .btn-quote:hover {
-      border-color: #00FF7F;
-      color: #00FF7F;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-
-    .page-btn {
-      border: 1px solid #2a2a2a;
-      background: #111;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      min-width: 44px;
-    }
-
-    .page-btn:hover {
-      border-color: #00FF7F;
-      color: #00FF7F;
-    }
-
-    .page-btn.active {
-      background: #00FF7F;
-      color: #000;
-      border-color: #00FF7F;
-    }
-
-    .page-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    @media (max-width: 1100px) {
-      .filters-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-      }
-      .finder-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media (max-width: 700px) {
-      .filters-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .finder-grid,
-      .filters-grid {
-        grid-template-columns: 1fr;
-      }
-
-      h1 {
-        font-size: 31px;
-      }
-
-      .container {
-        padding: 20px 12px 40px;
-      }
-
-      .results-bar {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>President Tire & Wheels</h1>
-    <div class="subtext">Select your vehicle first, then refine results if needed</div>
-
-    <div class="vehicle-finder">
-      <div class="finder-title">Find Wheels For Your Vehicle</div>
-      <div class="finder-grid">
-        <select id="yearSelect">
-          <option value="">Year</option>
-        </select>
-
-        <select id="makeSelect">
-          <option value="">Make</option>
-        </select>
-
-        <select id="modelSelect">
-          <option value="">Model</option>
-        </select>
-
-        <button id="findFitmentBtn">Find Wheels</button>
-      </div>
-      <div class="fitment-note" id="fitmentNote">Year, make and model are required.</div>
-    </div>
-
-    <div class="filters-box">
-      <div class="filters-title">Optional Filters</div>
-
-      <div class="filters-grid">
-        <input type="text" id="searchInput" placeholder="Search brand or model..." />
-
-        <select id="diameterFilter">
-          <option value="">All Sizes</option>
-        </select>
-
-        <select id="brandFilter">
-          <option value="">All Brands</option>
-        </select>
-
-        <select id="finishFilter">
-          <option value="">All Finishes</option>
-        </select>
-
-        <select id="sortFilter">
-          <option value="">Sort</option>
-          <option value="priority">Best Match</option>
-          <option value="price-low">Price: Low → High</option>
-          <option value="price-high">Price: High → Low</option>
-          <option value="size-low">Size: Small → Large</option>
-          <option value="size-high">Size: Large → Small</option>
-        </select>
-      </div>
-
-      <div class="results-bar">
-        <div class="results-count" id="resultsCount">Please select your vehicle first</div>
-        <button class="clear-btn" id="clearFilters">Clear All</button>
-      </div>
-
-      <div class="active-tags" id="activeTags"></div>
-    </div>
-
-    <div id="status">Choose your vehicle to see matching wheels.</div>
-    <div id="wheels-grid"></div>
-    <div class="pagination" id="pagination"></div>
-  </div>
-
-  <script>
-    const WHEELS_CSV_URL = "wheels.csv";
-    const FITMENT_CSV_URL = "vehicle_fitment.csv";
-    const QUOTE_URL = "https://presidentwheels.ca/contact-us";
-    const PHONE_LINK = "tel:+12266981667";
-    const ITEMS_PER_PAGE = 24;
-
-    let allWheels = [];
-    let allFitments = [];
-    let filteredWheels = [];
-    let currentPage = 1;
-    let selectedVehicleFitment = null;
-    let selectedVehicleLabel = "";
-
-    const PRIORITY_BRANDS = ["SPEC-1 RACING", "SENTALI"];
-
-    const yearSelect = document.getElementById("yearSelect");
-    const makeSelect = document.getElementById("makeSelect");
-    const modelSelect = document.getElementById("modelSelect");
-    const findFitmentBtn = document.getElementById("findFitmentBtn");
-    const fitmentNote = document.getElementById("fitmentNote");
-
-    const searchInput = document.getElementById("searchInput");
-    const diameterFilter = document.getElementById("diameterFilter");
-    const brandFilter = document.getElementById("brandFilter");
-    const finishFilter = document.getElementById("finishFilter");
-    const sortFilter = document.getElementById("sortFilter");
-    const wheelsGrid = document.getElementById("wheels-grid");
-    const statusEl = document.getElementById("status");
-    const resultsCount = document.getElementById("resultsCount");
-    const clearFiltersBtn = document.getElementById("clearFilters");
-    const paginationEl = document.getElementById("pagination");
-    const activeTagsEl = document.getElementById("activeTags");
-
-    function safeValue(v) {
-      return (v || "").toString().trim();
-    }
-
-    function brandPriority(manufacturer) {
-      const brand = safeValue(manufacturer).toUpperCase();
-      const index = PRIORITY_BRANDS.indexOf(brand);
-      return index === -1 ? 999 : index;
-    }
-
-    function uniqueSorted(values, numeric = false) {
-      const arr = [...new Set(values.filter(Boolean))];
-      if (numeric) return arr.sort((a, b) => Number(a) - Number(b));
-      return arr.sort((a, b) => a.localeCompare(b));
-    }
-
-    function fillSelect(selectEl, values, firstLabel) {
-      selectEl.innerHTML = `<option value="">${firstLabel}</option>`;
-      values.forEach(v => {
-        const opt = document.createElement("option");
-        opt.value = v;
-        opt.textContent = v;
-        selectEl.appendChild(opt);
-      });
-    }
-
-    function buildCard(wheel) {
-      const manufacturer = safeValue(wheel.Manufacturer);
-      const model = safeValue(wheel.Model);
-      const diameter = safeValue(wheel.Diameter);
-      const width = safeValue(wheel.Width);
-      const finish = safeValue(wheel.Finish);
-      const boltPattern = safeValue(wheel["Bolt Pattern"]);
-      const offset = safeValue(wheel.Offset);
-      const mapPrice = safeValue(wheel.MAP);
-      const img = safeValue(wheel["Image 1"]);
-      const bore = safeValue(wheel.Bore);
-
-      return `
-        <div class="wheel-card">
-          <div class="img-wrap">
-            <img src="${img}" alt="${manufacturer} ${model} ${diameter}x${width} ${finish}" loading="lazy">
-          </div>
-          <div class="brand">${manufacturer}</div>
-          <div class="title">${model}</div>
-          <div class="specs">
-            ${diameter}" x ${width}<br>
-            ${finish}<br>
-            Bolt Pattern: ${boltPattern}<br>
-            Offset: ${offset}${offset ? " mm" : ""}${bore ? `<br>Bore: ${bore}` : ""}
-          </div>
-          <div class="price">$${mapPrice}</div>
-          <div class="actions">
-            <a class="btn btn-call" href="${PHONE_LINK}">Call Now</a>
-            <a class="btn btn-quote" href="${QUOTE_URL}" target="_blank" rel="noopener">Request Quote</a>
-          </div>
-        </div>
-      `;
-    }
-
-    function initVehicleYears() {
-      const years = [];
-      allFitments.forEach(row => {
-        const start = Number(row.StartYear);
-        const end = Number(row.EndYear);
-        for (let y = start; y <= end; y++) years.push(String(y));
-      });
-      fillSelect(yearSelect, uniqueSorted(years, true), "Year");
-    }
-
-    function updateMakes() {
-      const year = safeValue(yearSelect.value);
-      makeSelect.innerHTML = `<option value="">Make</option>`;
-      modelSelect.innerHTML = `<option value="">Model</option>`;
-
-      if (!year) return;
-
-      const makes = uniqueSorted(
-        allFitments
-          .filter(row => Number(year) >= Number(row.StartYear) && Number(year) <= Number(row.EndYear))
-          .map(row => safeValue(row.Make))
-      );
-
-      makes.forEach(make => {
-        const opt = document.createElement("option");
-        opt.value = make;
-        opt.textContent = make;
-        makeSelect.appendChild(opt);
-      });
-    }
-
-    function updateModels() {
-      const year = safeValue(yearSelect.value);
-      const make = safeValue(makeSelect.value);
-      modelSelect.innerHTML = `<option value="">Model</option>`;
-
-      if (!year || !make) return;
-
-      const models = uniqueSorted(
-        allFitments
-          .filter(row =>
-            Number(year) >= Number(row.StartYear) &&
-            Number(year) <= Number(row.EndYear) &&
-            safeValue(row.Make) === make
-          )
-          .map(row => safeValue(row.Model))
-      );
-
-      models.forEach(model => {
-        const opt = document.createElement("option");
-        opt.value = model;
-        opt.textContent = model;
-        modelSelect.appendChild(opt);
-      });
-    }
-
-    function applyVehicleFitment() {
-      const year = safeValue(yearSelect.value);
-      const make = safeValue(makeSelect.value);
-      const model = safeValue(modelSelect.value);
-
-      if (!year || !make || !model) {
-        selectedVehicleFitment = null;
-        selectedVehicleLabel = "";
-        fitmentNote.textContent = "Year, make and model are required.";
-        renderWheels(true);
-        return;
-      }
-
-      const fitment = allFitments.find(row =>
-        Number(year) >= Number(row.StartYear) &&
-        Number(year) <= Number(row.EndYear) &&
-        safeValue(row.Make) === make &&
-        safeValue(row.Model) === model
-      );
-
-      if (!fitment) {
-        selectedVehicleFitment = null;
-        selectedVehicleLabel = "";
-        fitmentNote.textContent = "No fitment found for that vehicle.";
-        renderWheels(true);
-        return;
-      }
-
-      selectedVehicleFitment = fitment;
-      selectedVehicleLabel = `${year} ${make} ${model}`;
-
-      fitmentNote.textContent =
-        `${selectedVehicleLabel} — Bolt Pattern: ${fitment.BoltPattern}, Bore: ${fitment.Bore}, Diameter: ${fitment.MinDiameter}" to ${fitment.MaxDiameter}"`;
-
-      renderWheels(true);
-    }
-
-    function getFilteredWheels() {
-      if (!selectedVehicleFitment) return [];
-
-      const query = safeValue(searchInput.value).toLowerCase();
-      const diameter = safeValue(diameterFilter.value);
-      const brand = safeValue(brandFilter.value);
-      const finish = safeValue(finishFilter.value);
-      const sort = safeValue(sortFilter.value || "priority");
-
-      let filtered = allWheels.filter(wheel => {
-        const searchable = [
-          wheel.Manufacturer,
-          wheel.Model,
-          wheel.Description,
-          wheel.Diameter,
-          wheel.Width,
-          wheel.Finish,
-          wheel["Bolt Pattern"],
-          wheel.Offset
-        ].join(" ").toLowerCase();
-
-        const matchesQuery = !query || searchable.includes(query);
-        const matchesDiameter = !diameter || safeValue(wheel.Diameter) === diameter;
-        const matchesBrand = !brand || safeValue(wheel.Manufacturer) === brand;
-        const matchesFinish = !finish || safeValue(wheel.Finish) === finish;
-
-        const wheelBolt = safeValue(wheel["Bolt Pattern"]);
-        const wheelBore = Number(safeValue(wheel.Bore));
-        const wheelDiameter = Number(safeValue(wheel.Diameter));
-
-        const requiredBolt = safeValue(selectedVehicleFitment.BoltPattern);
-        const requiredBore = Number(safeValue(selectedVehicleFitment.Bore));
-        const minD = Number(safeValue(selectedVehicleFitment.MinDiameter));
-        const maxD = Number(safeValue(selectedVehicleFitment.MaxDiameter));
-
-        const matchesVehicle =
-          wheelBolt.includes(requiredBolt) &&
-          wheelBore >= requiredBore &&
-          wheelDiameter >= minD &&
-          wheelDiameter <= maxD;
-
-        return matchesQuery && matchesDiameter && matchesBrand && matchesFinish && matchesVehicle;
-      });
-
-      if (sort === "priority") {
-        filtered.sort((a, b) => {
-          const aPriority = brandPriority(a.Manufacturer);
-          const bPriority = brandPriority(b.Manufacturer);
-          if (aPriority !== bPriority) return aPriority - bPriority;
-          return Number(a.MAP) - Number(b.MAP);
-        });
-      }
-
-      if (sort === "price-low") filtered.sort((a, b) => Number(a.MAP) - Number(b.MAP));
-      if (sort === "price-high") filtered.sort((a, b) => Number(b.MAP) - Number(a.MAP));
-      if (sort === "size-low") filtered.sort((a, b) => Number(a.Diameter) - Number(b.Diameter));
-      if (sort === "size-high") filtered.sort((a, b) => Number(b.Diameter) - Number(a.Diameter));
-
-      return filtered;
-    }
-
-    function updateActiveTags() {
-      const tags = [];
-
-      if (selectedVehicleLabel) tags.push(selectedVehicleLabel);
-      if (safeValue(searchInput.value)) tags.push(`Search: ${safeValue(searchInput.value)}`);
-      if (safeValue(diameterFilter.value)) tags.push(`${safeValue(diameterFilter.value)}"`);
-      if (safeValue(brandFilter.value)) tags.push(safeValue(brandFilter.value));
-      if (safeValue(finishFilter.value)) tags.push(safeValue(finishFilter.value));
-
-      const sortLabels = {
-        "priority": "Best Match",
-        "price-low": "Price Low → High",
-        "price-high": "Price High → Low",
-        "size-low": "Size Small → Large",
-        "size-high": "Size Large → Small"
-      };
-
-      const currentSort = safeValue(sortFilter.value || "priority");
-      if (currentSort) tags.push(sortLabels[currentSort]);
-
-      activeTagsEl.innerHTML = tags.map(tag => `<div class="tag">${tag}</div>`).join("");
-    }
-
-    function renderPagination(totalItems) {
-      const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-      paginationEl.innerHTML = "";
-
-      if (totalPages <= 1) return;
-
-      const prevBtn = document.createElement("button");
-      prevBtn.className = "page-btn";
-      prevBtn.textContent = "Prev";
-      prevBtn.disabled = currentPage === 1;
-      prevBtn.onclick = () => {
-        currentPage--;
-        renderWheels();
-      };
-      paginationEl.appendChild(prevBtn);
-
-      const maxVisible = 5;
-      let start = Math.max(1, currentPage - 2);
-      let end = Math.min(totalPages, start + maxVisible - 1);
-
-      if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible + 1);
-
-      for (let i = start; i <= end; i++) {
-        const btn = document.createElement("button");
-        btn.className = "page-btn" + (i === currentPage ? " active" : "");
-        btn.textContent = i;
-        btn.onclick = () => {
-          currentPage = i;
-          renderWheels();
-        };
-        paginationEl.appendChild(btn);
-      }
-
-      const nextBtn = document.createElement("button");
-      nextBtn.className = "page-btn";
-      nextBtn.textContent = "Next";
-      nextBtn.disabled = currentPage === totalPages;
-      nextBtn.onclick = () => {
-        currentPage++;
-        renderWheels();
-      };
-      paginationEl.appendChild(nextBtn);
-    }
-
-    function renderWheels(resetPage = false) {
-      if (resetPage) currentPage = 1;
-
-      filteredWheels = getFilteredWheels();
-      updateActiveTags();
-
-      const total = filteredWheels.length;
-      const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
-
-      if (currentPage > totalPages) currentPage = 1;
-
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const pageItems = filteredWheels.slice(startIndex, endIndex);
-
-      if (!selectedVehicleFitment) {
-        resultsCount.textContent = "Please select your vehicle";
-        wheelsGrid.innerHTML = "";
-        paginationEl.innerHTML = "";
-        statusEl.style.display = "block";
-        statusEl.textContent = "Choose year, make and model to see matching wheels.";
-        return;
-      }
-
-      resultsCount.textContent = `${total.toLocaleString()} wheels found`;
-      wheelsGrid.innerHTML = pageItems.map(buildCard).join("");
-
-      if (total === 0) {
-        wheelsGrid.innerHTML = "";
-        paginationEl.innerHTML = "";
-        statusEl.style.display = "block";
-        statusEl.textContent = "No wheels match your vehicle and filters.";
-      } else {
-        statusEl.style.display = "none";
-        renderPagination(total);
-      }
-
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function initFilters() {
-      const diameters = uniqueSorted(allWheels.map(w => safeValue(w.Diameter)), true);
-      const brands = uniqueSorted(allWheels.map(w => safeValue(w.Manufacturer)));
-      const finishes = uniqueSorted(allWheels.map(w => safeValue(w.Finish)));
-
-      fillSelect(diameterFilter, diameters, "All Sizes");
-      fillSelect(brandFilter, brands, "All Brands");
-      fillSelect(finishFilter, finishes, "All Finishes");
-    }
-
-    function clearFilters() {
-      searchInput.value = "";
-      diameterFilter.value = "";
-      brandFilter.value = "";
-      finishFilter.value = "";
-      sortFilter.value = "priority";
-      yearSelect.value = "";
-      makeSelect.innerHTML = `<option value="">Make</option>`;
-      modelSelect.innerHTML = `<option value="">Model</option>`;
-      selectedVehicleFitment = null;
-      selectedVehicleLabel = "";
-      fitmentNote.textContent = "Year, make and model are required.";
-      renderWheels(true);
-    }
-
-    yearSelect.addEventListener("change", () => {
-      updateMakes();
-      selectedVehicleFitment = null;
-      selectedVehicleLabel = "";
-      renderWheels(true);
-    });
-
-    makeSelect.addEventListener("change", () => {
-      updateModels();
-      selectedVehicleFitment = null;
-      selectedVehicleLabel = "";
-      renderWheels(true);
-    });
-
-    findFitmentBtn.addEventListener("click", applyVehicleFitment);
-
-    searchInput.addEventListener("input", () => renderWheels(true));
-    diameterFilter.addEventListener("change", () => renderWheels(true));
-    brandFilter.addEventListener("change", () => renderWheels(true));
-    finishFilter.addEventListener("change", () => renderWheels(true));
-    sortFilter.addEventListener("change", () => renderWheels(true));
-    clearFiltersBtn.addEventListener("click", clearFilters);
-
-    Promise.all([
-      new Promise((resolve, reject) => {
-        Papa.parse(WHEELS_CSV_URL, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: results => resolve(results.data),
-          error: reject
-        });
-      }),
-      new Promise((resolve, reject) => {
-        Papa.parse(FITMENT_CSV_URL, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: results => resolve(results.data),
-          error: reject
-        });
-      })
-    ]).then(([wheelsData, fitmentData]) => {
-      allWheels = wheelsData.filter(w =>
-        safeValue(w["Image 1"]) &&
-        safeValue(w.Manufacturer) &&
-        safeValue(w.Model)
-      );
-
-      allFitments = fitmentData.filter(f =>
-        safeValue(f.StartYear) &&
-        safeValue(f.EndYear) &&
-        safeValue(f.Make) &&
-        safeValue(f.Model)
-      );
-
-      initFilters();
-      initVehicleYears();
-      sortFilter.value = "priority";
-      renderWheels(true);
-    }).catch(err => {
-      statusEl.textContent = "Could not load wheel catalog.";
-      console.error(err);
-    });
-  </script>
+
+<h1>President Tire & Wheels — Wheels Catalog</h1>
+
+<div class="filters">
+
+<select id="diameterFilter">
+<option value="">Diameter</option>
+</select>
+
+<select id="brandFilter">
+<option value="">Brand</option>
+</select>
+
+<select id="finishFilter">
+<option value="">Finish</option>
+</select>
+
+</div>
+
+<div id="wheels-grid"></div>
+
+<div class="pagination" id="pagination"></div>
+
+<script>
+
+const CSV_URL =
+"https://raw.githubusercontent.com/samanjot146-debug/wheels-catalog/main/wheels.csv";
+
+const ITEMS_PER_PAGE = 20;
+
+let wheels = [];
+let filtered = [];
+let currentPage = 1;
+
+async function loadCSV(){
+
+const response = await fetch(CSV_URL);
+const text = await response.text();
+
+const rows = text.split("\n").slice(1);
+
+wheels = rows.map(row=>{
+
+const cols = row.split(",");
+
+return{
+
+brand:cols[0],
+model:cols[1],
+finish:cols[4],
+diameter:cols[5],
+width:cols[6],
+bolt:cols[7],
+offset:cols[8],
+price:cols[18],
+image:cols[19]
+
+}
+
+});
+
+filtered=[...wheels];
+
+populateFilters();
+
+render();
+
+}
+
+function populateFilters(){
+
+const diameters=[...new Set(wheels.map(w=>w.diameter))];
+const brands=[...new Set(wheels.map(w=>w.brand))];
+const finishes=[...new Set(wheels.map(w=>w.finish))];
+
+const d=document.getElementById("diameterFilter");
+const b=document.getElementById("brandFilter");
+const f=document.getElementById("finishFilter");
+
+diameters.forEach(v=>{
+const o=document.createElement("option");
+o.value=v;
+o.text=v+" inch";
+d.appendChild(o);
+});
+
+brands.forEach(v=>{
+const o=document.createElement("option");
+o.value=v;
+o.text=v;
+b.appendChild(o);
+});
+
+finishes.forEach(v=>{
+const o=document.createElement("option");
+o.value=v;
+o.text=v;
+f.appendChild(o);
+});
+
+d.onchange=filter;
+b.onchange=filter;
+f.onchange=filter;
+
+}
+
+function filter(){
+
+const d=document.getElementById("diameterFilter").value;
+const b=document.getElementById("brandFilter").value;
+const f=document.getElementById("finishFilter").value;
+
+filtered=wheels.filter(w=>{
+
+return (!d || w.diameter===d)
+&&(!b || w.brand===b)
+&&(!f || w.finish===f);
+
+});
+
+currentPage=1;
+
+render();
+
+}
+
+function render(){
+
+const start=(currentPage-1)*ITEMS_PER_PAGE;
+const pageItems=filtered.slice(start,start+ITEMS_PER_PAGE);
+
+const grid=document.getElementById("wheels-grid");
+
+grid.innerHTML=pageItems.map(w=>`
+
+<div class="wheel-card">
+
+<img src="${w.image}" alt="${w.brand}">
+
+<div class="wheel-title">${w.brand} ${w.model}</div>
+
+<div class="wheel-spec">
+${w.diameter}x${w.width}<br>
+${w.bolt} ET${w.offset}<br>
+${w.finish}
+</div>
+
+<div class="price">$${w.price}</div>
+
+<a class="button" href="https://presidentwheels.ca/contact-us">
+Request Quote
+</a>
+
+</div>
+
+`).join("");
+
+renderPagination();
+
+}
+
+function renderPagination(){
+
+const pages=Math.ceil(filtered.length/ITEMS_PER_PAGE);
+
+const container=document.getElementById("pagination");
+
+container.innerHTML="";
+
+for(let i=1;i<=pages;i++){
+
+const btn=document.createElement("button");
+
+btn.className="page-btn"+(i===currentPage?" active":"");
+
+btn.innerText=i;
+
+btn.onclick=()=>{
+
+currentPage=i;
+
+render();
+
+window.scrollTo({top:0,behavior:"smooth"});
+
+};
+
+container.appendChild(btn);
+
+}
+
+}
+
+loadCSV();
+
+</script>
+
 </body>
 </html>
