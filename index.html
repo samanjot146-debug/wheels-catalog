@@ -11,176 +11,157 @@
     body {
       margin: 0;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #f7f7f7;
-      color: #111;
+      background: #000;
+      color: #fff;
     }
 
     .container {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 32px 20px 60px;
+      padding: 28px 16px 50px;
     }
 
     h1 {
       text-align: center;
-      color: #ff6801;
-      font-size: 40px;
-      font-weight: 600;
-      margin: 10px 0 10px;
+      color: #00FF7F;
+      font-size: 38px;
+      font-weight: 700;
+      margin: 8px 0 10px;
     }
 
     .subtext {
       text-align: center;
-      color: #555;
-      font-size: 16px;
+      color: #bdbdbd;
+      font-size: 15px;
       margin-bottom: 20px;
     }
 
-    .vehicle-finder {
-      background: white;
+    .vehicle-finder,
+    .filters-box {
+      background: #111;
       border-radius: 18px;
-      padding: 22px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      margin-bottom: 22px;
-      border: 2px solid transparent;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,255,127,0.08);
+      border: 1px solid #202020;
+      margin-bottom: 24px;
     }
 
-    .vehicle-finder:hover {
-      border-color: #ff6801;
+    .vehicle-finder:hover,
+    .filters-box:hover {
+      border-color: #00FF7F;
     }
 
-    .finder-title {
+    .finder-title,
+    .filters-title {
       font-size: 22px;
       font-weight: 700;
       margin-bottom: 14px;
-      color: #111;
+      color: #fff;
     }
 
     .finder-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 14px;
+      gap: 12px;
       align-items: end;
     }
 
     .finder-grid select,
-    .finder-grid button {
+    .finder-grid button,
+    .filters-grid select,
+    .filters-grid input {
       width: 100%;
       padding: 12px 14px;
       border-radius: 12px;
       font-size: 15px;
-      border: 1px solid #d6d6d6;
-      background: #fff;
+      border: 1px solid #2a2a2a;
+      background: #0b0b0b;
+      color: #fff;
+      outline: none;
     }
 
-    .finder-grid select:focus {
-      border-color: #ff6801;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(255, 104, 1, 0.12);
+    .finder-grid select:focus,
+    .filters-grid select:focus,
+    .filters-grid input:focus {
+      border-color: #00FF7F;
+      box-shadow: 0 0 0 3px rgba(0,255,127,0.16);
     }
 
     .finder-grid button {
-      background: #ff6801;
-      color: white;
-      border: 1px solid #ff6801;
-      font-weight: 600;
+      background: #00FF7F;
+      color: #000;
+      border: 1px solid #00FF7F;
+      font-weight: 700;
       cursor: pointer;
     }
 
     .finder-grid button:hover {
-      background: white;
-      color: #ff6801;
+      background: #000;
+      color: #00FF7F;
     }
 
     .fitment-note {
       margin-top: 12px;
-      color: #666;
+      color: #bdbdbd;
       font-size: 14px;
     }
 
-    .toolbar-wrap {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: rgba(247,247,247,0.96);
-      backdrop-filter: blur(10px);
-      padding: 14px 0 16px;
-      border-bottom: 1px solid #ececec;
-      margin-bottom: 20px;
-    }
-
-    .toolbar {
+    .filters-grid {
       display: grid;
-      grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 14px;
+      grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
-    .toolbar input,
-    .toolbar select {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid #d6d6d6;
-      background: #fff;
-      font-size: 15px;
-      outline: none;
-    }
-
-    .toolbar input:focus,
-    .toolbar select:focus {
-      border-color: #ff6801;
-      box-shadow: 0 0 0 3px rgba(255, 104, 1, 0.12);
-    }
-
-    .toolbar-bottom {
+    .results-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .results-count {
-      color: #444;
+      color: #e6e6e6;
       font-size: 15px;
       font-weight: 600;
     }
 
     .clear-btn {
-      border: 1px solid #ff6801;
-      background: #fff;
-      color: #ff6801;
+      border: 1px solid #00FF7F;
+      background: #000;
+      color: #00FF7F;
       padding: 10px 14px;
       border-radius: 12px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .clear-btn:hover {
-      background: #fff5ef;
+      background: #00FF7F;
+      color: #000;
     }
 
     .active-tags {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .tag {
-      background: #fff;
-      border: 1px solid #ffd1b1;
-      color: #ff6801;
+      background: #0b0b0b;
+      border: 1px solid #00FF7F;
+      color: #00FF7F;
       padding: 8px 12px;
       border-radius: 999px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     #status {
       text-align: center;
-      color: #666;
+      color: #bdbdbd;
       margin: 24px 0;
       font-size: 16px;
     }
@@ -192,10 +173,10 @@
     }
 
     .wheel-card {
-      background: #fff;
+      background: #111;
       border-radius: 18px;
       padding: 18px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
       border: 2px solid transparent;
       transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       display: flex;
@@ -205,8 +186,8 @@
 
     .wheel-card:hover {
       transform: translateY(-6px);
-      border-color: #ff6801;
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+      border-color: #00FF7F;
+      box-shadow: 0 12px 28px rgba(0,255,127,0.16);
     }
 
     .img-wrap {
@@ -214,11 +195,12 @@
       aspect-ratio: 1 / 1;
       border-radius: 14px;
       overflow: hidden;
-      background: #fafafa;
+      background: #0a0a0a;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 14px;
+      border: 1px solid #1e1e1e;
     }
 
     .img-wrap img {
@@ -229,7 +211,7 @@
     }
 
     .brand {
-      color: #777;
+      color: #8d8d8d;
       font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -241,17 +223,18 @@
       font-weight: 700;
       margin-bottom: 8px;
       line-height: 1.25;
+      color: #fff;
     }
 
     .specs {
-      color: #444;
+      color: #cfcfcf;
       font-size: 14px;
       line-height: 1.5;
       margin-bottom: 10px;
     }
 
     .price {
-      color: #ff6801;
+      color: #00FF7F;
       font-size: 22px;
       font-weight: 800;
       margin: 8px 0 14px;
@@ -270,32 +253,32 @@
       text-decoration: none;
       padding: 11px 14px;
       border-radius: 12px;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 14px;
       transition: 0.2s ease;
       border: 1px solid transparent;
     }
 
     .btn-call {
-      background: #ff6801;
-      color: #fff;
-      border-color: #ff6801;
+      background: #00FF7F;
+      color: #000;
+      border-color: #00FF7F;
     }
 
     .btn-call:hover {
-      background: #fff;
-      color: #ff6801;
+      background: #000;
+      color: #00FF7F;
     }
 
     .btn-quote {
-      background: #f2f2f2;
-      color: #111;
-      border-color: #d6d6d6;
+      background: #0b0b0b;
+      color: #fff;
+      border-color: #2a2a2a;
     }
 
     .btn-quote:hover {
-      background: #fff5ef;
-      border-color: #ff6801;
+      border-color: #00FF7F;
+      color: #00FF7F;
     }
 
     .pagination {
@@ -308,25 +291,25 @@
     }
 
     .page-btn {
-      border: 1px solid #ddd;
-      background: white;
-      color: #111;
+      border: 1px solid #2a2a2a;
+      background: #111;
+      color: #fff;
       padding: 10px 14px;
       border-radius: 10px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       min-width: 44px;
     }
 
     .page-btn:hover {
-      border-color: #ff6801;
-      color: #ff6801;
+      border-color: #00FF7F;
+      color: #00FF7F;
     }
 
     .page-btn.active {
-      background: #ff6801;
-      color: white;
-      border-color: #ff6801;
+      background: #00FF7F;
+      color: #000;
+      border-color: #00FF7F;
     }
 
     .page-btn:disabled {
@@ -334,8 +317,8 @@
       cursor: not-allowed;
     }
 
-    @media (max-width: 1200px) {
-      .toolbar {
+    @media (max-width: 1100px) {
+      .filters-grid {
         grid-template-columns: 1fr 1fr 1fr;
       }
       .finder-grid {
@@ -343,26 +326,27 @@
       }
     }
 
-    @media (max-width: 800px) {
-      .toolbar {
+    @media (max-width: 700px) {
+      .filters-grid {
         grid-template-columns: 1fr 1fr;
       }
     }
 
     @media (max-width: 600px) {
-      .toolbar, .finder-grid {
+      .finder-grid,
+      .filters-grid {
         grid-template-columns: 1fr;
       }
 
       h1 {
-        font-size: 32px;
+        font-size: 31px;
       }
 
       .container {
-        padding: 24px 14px 40px;
+        padding: 20px 12px 40px;
       }
 
-      .toolbar-bottom {
+      .results-bar {
         align-items: flex-start;
         flex-direction: column;
       }
@@ -372,10 +356,10 @@
 <body>
   <div class="container">
     <h1>President Tire & Wheels</h1>
-    <div class="subtext">Find wheels that fit your vehicle</div>
+    <div class="subtext">Select your vehicle first, then refine results if needed</div>
 
     <div class="vehicle-finder">
-      <div class="finder-title">Select Your Vehicle</div>
+      <div class="finder-title">Find Wheels For Your Vehicle</div>
       <div class="finder-grid">
         <select id="yearSelect">
           <option value="">Year</option>
@@ -391,12 +375,14 @@
 
         <button id="findFitmentBtn">Find Wheels</button>
       </div>
-      <div class="fitment-note" id="fitmentNote">Choose year, make and model to see matching wheels.</div>
+      <div class="fitment-note" id="fitmentNote">Year, make and model are required.</div>
     </div>
 
-    <div class="toolbar-wrap">
-      <div class="toolbar">
-        <input type="text" id="searchInput" placeholder="Search brand, model, size, finish..." />
+    <div class="filters-box">
+      <div class="filters-title">Optional Filters</div>
+
+      <div class="filters-grid">
+        <input type="text" id="searchInput" placeholder="Search brand or model..." />
 
         <select id="diameterFilter">
           <option value="">All Sizes</option>
@@ -410,12 +396,9 @@
           <option value="">All Finishes</option>
         </select>
 
-        <select id="boltFilter">
-          <option value="">Bolt Pattern</option>
-        </select>
-
         <select id="sortFilter">
           <option value="">Sort</option>
+          <option value="priority">Best Match</option>
           <option value="price-low">Price: Low → High</option>
           <option value="price-high">Price: High → Low</option>
           <option value="size-low">Size: Small → Large</option>
@@ -423,15 +406,15 @@
         </select>
       </div>
 
-      <div class="toolbar-bottom">
-        <div class="results-count" id="resultsCount">Loading wheels...</div>
-        <button class="clear-btn" id="clearFilters">Clear Filters</button>
+      <div class="results-bar">
+        <div class="results-count" id="resultsCount">Please select your vehicle first</div>
+        <button class="clear-btn" id="clearFilters">Clear All</button>
       </div>
 
       <div class="active-tags" id="activeTags"></div>
     </div>
 
-    <div id="status">Loading wheel catalog...</div>
+    <div id="status">Choose your vehicle to see matching wheels.</div>
     <div id="wheels-grid"></div>
     <div class="pagination" id="pagination"></div>
   </div>
@@ -448,6 +431,9 @@
     let filteredWheels = [];
     let currentPage = 1;
     let selectedVehicleFitment = null;
+    let selectedVehicleLabel = "";
+
+    const PRIORITY_BRANDS = ["SPEC-1 RACING", "SENTALI"];
 
     const yearSelect = document.getElementById("yearSelect");
     const makeSelect = document.getElementById("makeSelect");
@@ -459,7 +445,6 @@
     const diameterFilter = document.getElementById("diameterFilter");
     const brandFilter = document.getElementById("brandFilter");
     const finishFilter = document.getElementById("finishFilter");
-    const boltFilter = document.getElementById("boltFilter");
     const sortFilter = document.getElementById("sortFilter");
     const wheelsGrid = document.getElementById("wheels-grid");
     const statusEl = document.getElementById("status");
@@ -472,13 +457,10 @@
       return (v || "").toString().trim();
     }
 
-    function escapeHtml(str) {
-      return safeValue(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    function brandPriority(manufacturer) {
+      const brand = safeValue(manufacturer).toUpperCase();
+      const index = PRIORITY_BRANDS.indexOf(brand);
+      return index === -1 ? 999 : index;
     }
 
     function uniqueSorted(values, numeric = false) {
@@ -498,16 +480,16 @@
     }
 
     function buildCard(wheel) {
-      const manufacturer = escapeHtml(wheel.Manufacturer);
-      const model = escapeHtml(wheel.Model);
-      const diameter = escapeHtml(wheel.Diameter);
-      const width = escapeHtml(wheel.Width);
-      const finish = escapeHtml(wheel.Finish);
-      const boltPattern = escapeHtml(wheel["Bolt Pattern"]);
-      const offset = escapeHtml(wheel.Offset);
-      const mapPrice = escapeHtml(wheel.MAP);
+      const manufacturer = safeValue(wheel.Manufacturer);
+      const model = safeValue(wheel.Model);
+      const diameter = safeValue(wheel.Diameter);
+      const width = safeValue(wheel.Width);
+      const finish = safeValue(wheel.Finish);
+      const boltPattern = safeValue(wheel["Bolt Pattern"]);
+      const offset = safeValue(wheel.Offset);
+      const mapPrice = safeValue(wheel.MAP);
       const img = safeValue(wheel["Image 1"]);
-      const bore = escapeHtml(wheel.Bore);
+      const bore = safeValue(wheel.Bore);
 
       return `
         <div class="wheel-card">
@@ -594,7 +576,8 @@
 
       if (!year || !make || !model) {
         selectedVehicleFitment = null;
-        fitmentNote.textContent = "Choose year, make and model to see matching wheels.";
+        selectedVehicleLabel = "";
+        fitmentNote.textContent = "Year, make and model are required.";
         renderWheels(true);
         return;
       }
@@ -608,25 +591,29 @@
 
       if (!fitment) {
         selectedVehicleFitment = null;
+        selectedVehicleLabel = "";
         fitmentNote.textContent = "No fitment found for that vehicle.";
         renderWheels(true);
         return;
       }
 
       selectedVehicleFitment = fitment;
+      selectedVehicleLabel = `${year} ${make} ${model}`;
+
       fitmentNote.textContent =
-        `${year} ${make} ${model} — Bolt Pattern: ${fitment.BoltPattern}, Bore: ${fitment.Bore}, Diameter: ${fitment.MinDiameter}" to ${fitment.MaxDiameter}"`;
+        `${selectedVehicleLabel} — Bolt Pattern: ${fitment.BoltPattern}, Bore: ${fitment.Bore}, Diameter: ${fitment.MinDiameter}" to ${fitment.MaxDiameter}"`;
 
       renderWheels(true);
     }
 
     function getFilteredWheels() {
+      if (!selectedVehicleFitment) return [];
+
       const query = safeValue(searchInput.value).toLowerCase();
       const diameter = safeValue(diameterFilter.value);
       const brand = safeValue(brandFilter.value);
       const finish = safeValue(finishFilter.value);
-      const bolt = safeValue(boltFilter.value);
-      const sort = safeValue(sortFilter.value);
+      const sort = safeValue(sortFilter.value || "priority");
 
       let filtered = allWheels.filter(wheel => {
         const searchable = [
@@ -644,35 +631,33 @@
         const matchesDiameter = !diameter || safeValue(wheel.Diameter) === diameter;
         const matchesBrand = !brand || safeValue(wheel.Manufacturer) === brand;
         const matchesFinish = !finish || safeValue(wheel.Finish) === finish;
-        const matchesBolt = !bolt || safeValue(wheel["Bolt Pattern"]) === bolt;
 
-        let matchesVehicle = true;
-        if (selectedVehicleFitment) {
-          const wheelBolt = safeValue(wheel["Bolt Pattern"]);
-          const wheelBore = Number(safeValue(wheel.Bore));
-          const wheelDiameter = Number(safeValue(wheel.Diameter));
+        const wheelBolt = safeValue(wheel["Bolt Pattern"]);
+        const wheelBore = Number(safeValue(wheel.Bore));
+        const wheelDiameter = Number(safeValue(wheel.Diameter));
 
-          const requiredBolt = safeValue(selectedVehicleFitment.BoltPattern);
-          const requiredBore = Number(safeValue(selectedVehicleFitment.Bore));
-          const minD = Number(safeValue(selectedVehicleFitment.MinDiameter));
-          const maxD = Number(safeValue(selectedVehicleFitment.MaxDiameter));
+        const requiredBolt = safeValue(selectedVehicleFitment.BoltPattern);
+        const requiredBore = Number(safeValue(selectedVehicleFitment.Bore));
+        const minD = Number(safeValue(selectedVehicleFitment.MinDiameter));
+        const maxD = Number(safeValue(selectedVehicleFitment.MaxDiameter));
 
-          matchesVehicle =
-            wheelBolt.includes(requiredBolt) &&
-            wheelBore >= requiredBore &&
-            wheelDiameter >= minD &&
-            wheelDiameter <= maxD;
-        }
+        const matchesVehicle =
+          wheelBolt.includes(requiredBolt) &&
+          wheelBore >= requiredBore &&
+          wheelDiameter >= minD &&
+          wheelDiameter <= maxD;
 
-        return (
-          matchesQuery &&
-          matchesDiameter &&
-          matchesBrand &&
-          matchesFinish &&
-          matchesBolt &&
-          matchesVehicle
-        );
+        return matchesQuery && matchesDiameter && matchesBrand && matchesFinish && matchesVehicle;
       });
+
+      if (sort === "priority") {
+        filtered.sort((a, b) => {
+          const aPriority = brandPriority(a.Manufacturer);
+          const bPriority = brandPriority(b.Manufacturer);
+          if (aPriority !== bPriority) return aPriority - bPriority;
+          return Number(a.MAP) - Number(b.MAP);
+        });
+      }
 
       if (sort === "price-low") filtered.sort((a, b) => Number(a.MAP) - Number(b.MAP));
       if (sort === "price-high") filtered.sort((a, b) => Number(b.MAP) - Number(a.MAP));
@@ -685,26 +670,24 @@
     function updateActiveTags() {
       const tags = [];
 
-      if (selectedVehicleFitment) {
-        tags.push(`${yearSelect.value} ${makeSelect.value} ${modelSelect.value}`);
-      }
-
+      if (selectedVehicleLabel) tags.push(selectedVehicleLabel);
       if (safeValue(searchInput.value)) tags.push(`Search: ${safeValue(searchInput.value)}`);
       if (safeValue(diameterFilter.value)) tags.push(`${safeValue(diameterFilter.value)}"`);
       if (safeValue(brandFilter.value)) tags.push(safeValue(brandFilter.value));
       if (safeValue(finishFilter.value)) tags.push(safeValue(finishFilter.value));
-      if (safeValue(boltFilter.value)) tags.push(safeValue(boltFilter.value));
 
       const sortLabels = {
+        "priority": "Best Match",
         "price-low": "Price Low → High",
         "price-high": "Price High → Low",
         "size-low": "Size Small → Large",
         "size-high": "Size Large → Small"
       };
 
-      if (safeValue(sortFilter.value)) tags.push(sortLabels[safeValue(sortFilter.value)]);
+      const currentSort = safeValue(sortFilter.value || "priority");
+      if (currentSort) tags.push(sortLabels[currentSort]);
 
-      activeTagsEl.innerHTML = tags.map(tag => `<div class="tag">${escapeHtml(tag)}</div>`).join("");
+      activeTagsEl.innerHTML = tags.map(tag => `<div class="tag">${tag}</div>`).join("");
     }
 
     function renderPagination(totalItems) {
@@ -766,6 +749,15 @@
       const endIndex = startIndex + ITEMS_PER_PAGE;
       const pageItems = filteredWheels.slice(startIndex, endIndex);
 
+      if (!selectedVehicleFitment) {
+        resultsCount.textContent = "Please select your vehicle";
+        wheelsGrid.innerHTML = "";
+        paginationEl.innerHTML = "";
+        statusEl.style.display = "block";
+        statusEl.textContent = "Choose year, make and model to see matching wheels.";
+        return;
+      }
+
       resultsCount.textContent = `${total.toLocaleString()} wheels found`;
       wheelsGrid.innerHTML = pageItems.map(buildCard).join("");
 
@@ -773,7 +765,7 @@
         wheelsGrid.innerHTML = "";
         paginationEl.innerHTML = "";
         statusEl.style.display = "block";
-        statusEl.textContent = "No wheels match your filters.";
+        statusEl.textContent = "No wheels match your vehicle and filters.";
       } else {
         statusEl.style.display = "none";
         renderPagination(total);
@@ -786,12 +778,10 @@
       const diameters = uniqueSorted(allWheels.map(w => safeValue(w.Diameter)), true);
       const brands = uniqueSorted(allWheels.map(w => safeValue(w.Manufacturer)));
       const finishes = uniqueSorted(allWheels.map(w => safeValue(w.Finish)));
-      const bolts = uniqueSorted(allWheels.map(w => safeValue(w["Bolt Pattern"])));
 
       fillSelect(diameterFilter, diameters, "All Sizes");
       fillSelect(brandFilter, brands, "All Brands");
       fillSelect(finishFilter, finishes, "All Finishes");
-      fillSelect(boltFilter, bolts, "Bolt Pattern");
     }
 
     function clearFilters() {
@@ -799,25 +789,27 @@
       diameterFilter.value = "";
       brandFilter.value = "";
       finishFilter.value = "";
-      boltFilter.value = "";
-      sortFilter.value = "";
+      sortFilter.value = "priority";
       yearSelect.value = "";
       makeSelect.innerHTML = `<option value="">Make</option>`;
       modelSelect.innerHTML = `<option value="">Model</option>`;
       selectedVehicleFitment = null;
-      fitmentNote.textContent = "Choose year, make and model to see matching wheels.";
+      selectedVehicleLabel = "";
+      fitmentNote.textContent = "Year, make and model are required.";
       renderWheels(true);
     }
 
     yearSelect.addEventListener("change", () => {
       updateMakes();
       selectedVehicleFitment = null;
+      selectedVehicleLabel = "";
       renderWheels(true);
     });
 
     makeSelect.addEventListener("change", () => {
       updateModels();
       selectedVehicleFitment = null;
+      selectedVehicleLabel = "";
       renderWheels(true);
     });
 
@@ -827,7 +819,6 @@
     diameterFilter.addEventListener("change", () => renderWheels(true));
     brandFilter.addEventListener("change", () => renderWheels(true));
     finishFilter.addEventListener("change", () => renderWheels(true));
-    boltFilter.addEventListener("change", () => renderWheels(true));
     sortFilter.addEventListener("change", () => renderWheels(true));
     clearFiltersBtn.addEventListener("click", clearFilters);
 
@@ -866,6 +857,7 @@
 
       initFilters();
       initVehicleYears();
+      sortFilter.value = "priority";
       renderWheels(true);
     }).catch(err => {
       statusEl.textContent = "Could not load wheel catalog.";
