@@ -61,7 +61,7 @@
 
     .finder-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
+      grid-template-columns: 1fr 1fr 1fr auto auto;
       gap: 12px;
       align-items: end;
     }
@@ -88,27 +88,42 @@
     }
 
     .finder-grid button {
-      background: #00FF7F;
-      color: #000;
-      border: 1px solid #00FF7F;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .finder-grid button:hover {
+    .btn-primary {
+      background: #00FF7F;
+      color: #000;
+      border: 1px solid #00FF7F;
+    }
+
+    .btn-primary:hover {
       background: #000;
       color: #00FF7F;
+    }
+
+    .btn-secondary {
+      background: #000;
+      color: #00FF7F;
+      border: 1px solid #00FF7F;
+    }
+
+    .btn-secondary:hover {
+      background: #00FF7F;
+      color: #000;
     }
 
     .fitment-note {
       margin-top: 12px;
       color: #bdbdbd;
       font-size: 14px;
+      line-height: 1.5;
     }
 
     .filters-grid {
       display: grid;
-      grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr 1fr;
       gap: 12px;
       margin-bottom: 12px;
     }
@@ -164,6 +179,7 @@
       color: #bdbdbd;
       margin: 24px 0;
       font-size: 16px;
+      line-height: 1.6;
     }
 
     #wheels-grid {
@@ -317,12 +333,15 @@
       cursor: not-allowed;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1200px) {
       .filters-grid {
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
       }
+    }
+
+    @media (max-width: 1100px) {
       .finder-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
       }
     }
 
@@ -356,7 +375,7 @@
 <body>
   <div class="container">
     <h1>President Tire & Wheels</h1>
-    <div class="subtext">Select your vehicle first, then refine results if needed</div>
+    <div class="subtext">Search by vehicle or by wheel specs like bolt pattern and center bore</div>
 
     <div class="vehicle-finder">
       <div class="finder-title">Find Wheels For Your Vehicle</div>
@@ -373,16 +392,27 @@
           <option value="">Model</option>
         </select>
 
-        <button id="findFitmentBtn">Find Wheels</button>
+        <button id="findFitmentBtn" class="btn-primary">Find Wheels</button>
+        <button id="clearVehicleBtn" class="btn-secondary" type="button">Clear Vehicle</button>
       </div>
-      <div class="fitment-note" id="fitmentNote">Year, make and model are required.</div>
+      <div class="fitment-note" id="fitmentNote">
+        Vehicle search is optional. You can also search by bolt pattern and center bore below.
+      </div>
     </div>
 
     <div class="filters-box">
-      <div class="filters-title">Optional Filters</div>
+      <div class="filters-title">Search by Specs / Optional Filters</div>
 
       <div class="filters-grid">
         <input type="text" id="searchInput" placeholder="Search brand or model..." />
+
+        <select id="boltPatternFilter">
+          <option value="">All Bolt Patterns</option>
+        </select>
+
+        <select id="centerBoreFilter">
+          <option value="">All Center Bores</option>
+        </select>
 
         <select id="diameterFilter">
           <option value="">All Sizes</option>
@@ -406,14 +436,14 @@
       </div>
 
       <div class="results-bar">
-        <div class="results-count" id="resultsCount">Please select your vehicle first</div>
+        <div class="results-count" id="resultsCount">Use vehicle search or bolt pattern to start</div>
         <button class="clear-btn" id="clearFilters">Clear All</button>
       </div>
 
       <div class="active-tags" id="activeTags"></div>
     </div>
 
-    <div id="status">Choose your vehicle to see matching wheels.</div>
+    <div id="status">Use vehicle search or choose wheel specs to see results.</div>
     <div id="wheels-grid"></div>
     <div class="pagination" id="pagination"></div>
   </div>
@@ -438,9 +468,12 @@
     const makeSelect = document.getElementById("makeSelect");
     const modelSelect = document.getElementById("modelSelect");
     const findFitmentBtn = document.getElementById("findFitmentBtn");
+    const clearVehicleBtn = document.getElementById("clearVehicleBtn");
     const fitmentNote = document.getElementById("fitmentNote");
 
     const searchInput = document.getElementById("searchInput");
+    const boltPatternFilter = document.getElementById("boltPatternFilter");
+    const centerBoreFilter = document.getElementById("centerBoreFilter");
     const diameterFilter = document.getElementById("diameterFilter");
     const brandFilter = document.getElementById("brandFilter");
     const finishFilter = document.getElementById("finishFilter");
@@ -464,7 +497,9 @@
 
     function uniqueSorted(values, numeric = false) {
       const arr = [...new Set(values.filter(Boolean))];
-      if (numeric) return arr.sort((a, b) => Number(a) - Number(b));
+      if (numeric) {
+        return arr.sort((a, b) => Number(a) - Number(b));
+      }
       return arr.sort((a, b) => a.localeCompare(b));
     }
 
@@ -501,7 +536,7 @@
             ${diameter}" x ${width}<br>
             ${finish}<br>
             Bolt Pattern: ${boltPattern}<br>
-            Offset: ${offset}${offset ? " mm" : ""}${bore ? `<br>Bore: ${bore}` : ""}
+            Offset: ${offset}${offset ? " mm" : ""}${bore ? `<br>Center Bore: ${bore}` : ""}
           </div>
           <div class="price">$${mapPrice}</div>
           <div class="actions">
@@ -517,7 +552,9 @@
       allFitments.forEach(row => {
         const start = Number(row.StartYear);
         const end = Number(row.EndYear);
-        for (let y = start; y <= end; y++) years.push(String(y));
+        if (!Number.isNaN(start) && !Number.isNaN(end)) {
+          for (let y = start; y <= end; y++) years.push(String(y));
+        }
       });
       fillSelect(yearSelect, uniqueSorted(years, true), "Year");
     }
@@ -576,7 +613,7 @@
       if (!year || !make || !model) {
         selectedVehicleFitment = null;
         selectedVehicleLabel = "";
-        fitmentNote.textContent = "Year, make and model are required.";
+        fitmentNote.textContent = "Please choose year, make and model, or use bolt pattern and center bore below.";
         renderWheels(true);
         return;
       }
@@ -591,7 +628,7 @@
       if (!fitment) {
         selectedVehicleFitment = null;
         selectedVehicleLabel = "";
-        fitmentNote.textContent = "No fitment found for that vehicle.";
+        fitmentNote.textContent = "No vehicle fitment found. Try searching by bolt pattern and center bore below.";
         renderWheels(true);
         return;
       }
@@ -600,15 +637,18 @@
       selectedVehicleLabel = `${year} ${make} ${model}`;
 
       fitmentNote.textContent =
-        `${selectedVehicleLabel} — Bolt Pattern: ${fitment.BoltPattern}, Bore: ${fitment.Bore}, Diameter: ${fitment.MinDiameter}" to ${fitment.MaxDiameter}"`;
+        `${selectedVehicleLabel} — Bolt Pattern: ${fitment.BoltPattern}, Bore: ${fitment.Bore}, Diameter: ${fitment.MinDiameter}" to ${fitment.MaxDiameter}". Final fitment is always verified before order confirmation.`;
+
+      if (!boltPatternFilter.value) boltPatternFilter.value = safeValue(fitment.BoltPattern);
+      if (!centerBoreFilter.value) centerBoreFilter.value = safeValue(fitment.Bore);
 
       renderWheels(true);
     }
 
     function getFilteredWheels() {
-      if (!selectedVehicleFitment) return [];
-
       const query = safeValue(searchInput.value).toLowerCase();
+      const boltPattern = safeValue(boltPatternFilter.value);
+      const centerBore = safeValue(centerBoreFilter.value);
       const diameter = safeValue(diameterFilter.value);
       const brand = safeValue(brandFilter.value);
       const finish = safeValue(finishFilter.value);
@@ -623,30 +663,45 @@
           wheel.Width,
           wheel.Finish,
           wheel["Bolt Pattern"],
-          wheel.Offset
+          wheel.Offset,
+          wheel.Bore
         ].join(" ").toLowerCase();
 
         const matchesQuery = !query || searchable.includes(query);
+        const matchesBolt = !boltPattern || safeValue(wheel["Bolt Pattern"]).includes(boltPattern);
+        const matchesBore = !centerBore || Number(safeValue(wheel.Bore)) >= Number(centerBore);
         const matchesDiameter = !diameter || safeValue(wheel.Diameter) === diameter;
         const matchesBrand = !brand || safeValue(wheel.Manufacturer) === brand;
         const matchesFinish = !finish || safeValue(wheel.Finish) === finish;
 
-        const wheelBolt = safeValue(wheel["Bolt Pattern"]);
-        const wheelBore = Number(safeValue(wheel.Bore));
-        const wheelDiameter = Number(safeValue(wheel.Diameter));
+        let matchesVehicle = true;
 
-        const requiredBolt = safeValue(selectedVehicleFitment.BoltPattern);
-        const requiredBore = Number(safeValue(selectedVehicleFitment.Bore));
-        const minD = Number(safeValue(selectedVehicleFitment.MinDiameter));
-        const maxD = Number(safeValue(selectedVehicleFitment.MaxDiameter));
+        if (selectedVehicleFitment) {
+          const wheelBolt = safeValue(wheel["Bolt Pattern"]);
+          const wheelBore = Number(safeValue(wheel.Bore));
+          const wheelDiameter = Number(safeValue(wheel.Diameter));
 
-        const matchesVehicle =
-          wheelBolt.includes(requiredBolt) &&
-          wheelBore >= requiredBore &&
-          wheelDiameter >= minD &&
-          wheelDiameter <= maxD;
+          const requiredBolt = safeValue(selectedVehicleFitment.BoltPattern);
+          const requiredBore = Number(safeValue(selectedVehicleFitment.Bore));
+          const minD = Number(safeValue(selectedVehicleFitment.MinDiameter));
+          const maxD = Number(safeValue(selectedVehicleFitment.MaxDiameter));
 
-        return matchesQuery && matchesDiameter && matchesBrand && matchesFinish && matchesVehicle;
+          matchesVehicle =
+            wheelBolt.includes(requiredBolt) &&
+            wheelBore >= requiredBore &&
+            wheelDiameter >= minD &&
+            wheelDiameter <= maxD;
+        }
+
+        return (
+          matchesQuery &&
+          matchesBolt &&
+          matchesBore &&
+          matchesDiameter &&
+          matchesBrand &&
+          matchesFinish &&
+          matchesVehicle
+        );
       });
 
       if (sort === "priority") {
@@ -671,6 +726,8 @@
 
       if (selectedVehicleLabel) tags.push(selectedVehicleLabel);
       if (safeValue(searchInput.value)) tags.push(`Search: ${safeValue(searchInput.value)}`);
+      if (safeValue(boltPatternFilter.value)) tags.push(`Bolt: ${safeValue(boltPatternFilter.value)}`);
+      if (safeValue(centerBoreFilter.value)) tags.push(`Bore: ${safeValue(centerBoreFilter.value)}`);
       if (safeValue(diameterFilter.value)) tags.push(`${safeValue(diameterFilter.value)}"`);
       if (safeValue(brandFilter.value)) tags.push(safeValue(brandFilter.value));
       if (safeValue(finishFilter.value)) tags.push(safeValue(finishFilter.value));
@@ -748,12 +805,21 @@
       const endIndex = startIndex + ITEMS_PER_PAGE;
       const pageItems = filteredWheels.slice(startIndex, endIndex);
 
-      if (!selectedVehicleFitment) {
-        resultsCount.textContent = "Please select your vehicle";
+      const hasAnySearch =
+        selectedVehicleFitment ||
+        safeValue(searchInput.value) ||
+        safeValue(boltPatternFilter.value) ||
+        safeValue(centerBoreFilter.value) ||
+        safeValue(diameterFilter.value) ||
+        safeValue(brandFilter.value) ||
+        safeValue(finishFilter.value);
+
+      if (!hasAnySearch) {
+        resultsCount.textContent = "Use vehicle search or bolt pattern to start";
         wheelsGrid.innerHTML = "";
         paginationEl.innerHTML = "";
         statusEl.style.display = "block";
-        statusEl.textContent = "Choose year, make and model to see matching wheels.";
+        statusEl.textContent = "Choose year, make and model, or search by bolt pattern and center bore.";
         return;
       }
 
@@ -764,7 +830,7 @@
         wheelsGrid.innerHTML = "";
         paginationEl.innerHTML = "";
         statusEl.style.display = "block";
-        statusEl.textContent = "No wheels match your vehicle and filters.";
+        statusEl.textContent = "No wheels match your search. Try a different bolt pattern, center bore, or brand. Final fitment is verified before order confirmation.";
       } else {
         statusEl.style.display = "none";
         renderPagination(total);
@@ -777,25 +843,35 @@
       const diameters = uniqueSorted(allWheels.map(w => safeValue(w.Diameter)), true);
       const brands = uniqueSorted(allWheels.map(w => safeValue(w.Manufacturer)));
       const finishes = uniqueSorted(allWheels.map(w => safeValue(w.Finish)));
+      const boltPatterns = uniqueSorted(allWheels.map(w => safeValue(w["Bolt Pattern"])));
+      const centerBores = uniqueSorted(allWheels.map(w => safeValue(w.Bore)), true);
 
       fillSelect(diameterFilter, diameters, "All Sizes");
       fillSelect(brandFilter, brands, "All Brands");
       fillSelect(finishFilter, finishes, "All Finishes");
+      fillSelect(boltPatternFilter, boltPatterns, "All Bolt Patterns");
+      fillSelect(centerBoreFilter, centerBores, "All Center Bores");
     }
 
-    function clearFilters() {
-      searchInput.value = "";
-      diameterFilter.value = "";
-      brandFilter.value = "";
-      finishFilter.value = "";
-      sortFilter.value = "priority";
+    function clearVehicle() {
       yearSelect.value = "";
       makeSelect.innerHTML = `<option value="">Make</option>`;
       modelSelect.innerHTML = `<option value="">Model</option>`;
       selectedVehicleFitment = null;
       selectedVehicleLabel = "";
-      fitmentNote.textContent = "Year, make and model are required.";
+      fitmentNote.textContent = "Vehicle search is optional. You can also search by bolt pattern and center bore below.";
       renderWheels(true);
+    }
+
+    function clearFilters() {
+      searchInput.value = "";
+      boltPatternFilter.value = "";
+      centerBoreFilter.value = "";
+      diameterFilter.value = "";
+      brandFilter.value = "";
+      finishFilter.value = "";
+      sortFilter.value = "priority";
+      clearVehicle();
     }
 
     yearSelect.addEventListener("change", () => {
@@ -813,8 +889,11 @@
     });
 
     findFitmentBtn.addEventListener("click", applyVehicleFitment);
+    clearVehicleBtn.addEventListener("click", clearVehicle);
 
     searchInput.addEventListener("input", () => renderWheels(true));
+    boltPatternFilter.addEventListener("change", () => renderWheels(true));
+    centerBoreFilter.addEventListener("change", () => renderWheels(true));
     diameterFilter.addEventListener("change", () => renderWheels(true));
     brandFilter.addEventListener("change", () => renderWheels(true));
     finishFilter.addEventListener("change", () => renderWheels(true));
