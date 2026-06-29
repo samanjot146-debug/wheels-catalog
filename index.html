@@ -647,7 +647,8 @@ async function loadSuperspeed() {
 
 async function loadAutocountry() {
   try {
-    const res  = await fetch(`${WORKER_URL}/autocountry`);
+    // GitHub Pages is public — fetch directly, no proxy needed
+    const res  = await fetch(AUTOCOUNTRY_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     return parseAutocountryCSV(text);
