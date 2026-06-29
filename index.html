@@ -90,7 +90,7 @@
     /* ── Filters ─────────────────────────────── */
     .filters {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
       gap: 10px;
       background: var(--card);
       border: 1px solid var(--border);
@@ -500,6 +500,12 @@
     <input type="text" id="search" placeholder="Model name or SKU…" oninput="applyFilters()">
   </div>
   <div class="filter-group">
+    <label class="filter-label">Brand</label>
+    <select id="fBrand" onchange="applyFilters()">
+      <option value="">All brands</option>
+    </select>
+  </div>
+  <div class="filter-group">
     <label class="filter-label">Size</label>
     <select id="fDiam" onchange="applyFilters()">
       <option value="">All sizes</option>
@@ -636,9 +642,12 @@ function normalize(w) {
   }
   // API column is "INVENTORY ON" (Ontario stock) — map to inventory
   out.inventory = normalizeStock(out['inventory on'] ?? out.inventory ?? '');
-  // Fix image URLs: API returns localhost, swap for real server
+  // Fix image URLs: API returns localhost URLs — route through our worker proxy
   if (out.face_img) {
-    out.face_img = out.face_img.replace(/https?:\/\/localhost:\d+/g, 'https://b2b.super-speed.ca');
+    out.face_img = out.face_img.replace(
+      /https?:\/\/localhost:\d+\/api\/Product\/GetImage\?imgName=([^/]+)/g,
+      (match, imgName) => `${WORKER_URL}/img/${encodeURIComponent(imgName)}`
+    );
   }
   // Ensure numeric fields
   out.diameter = parseFloat(out.diameter) || 0;
@@ -664,10 +673,12 @@ function parseCSV(csv) {
 
 // ─── FILTERS ─────────────────────────────────
 function buildFilters(wheels) {
+  const brands  = [...new Set(wheels.map(w => w.brand).filter(Boolean).sort())];
   const diams   = [...new Set(wheels.map(w => w.diameter).filter(Boolean).sort((a,b)=>a-b))];
   const pcds    = [...new Set(wheels.map(w => w.pcd).filter(Boolean).sort())];
   const finishes= [...new Set(wheels.map(w => w.finish).filter(Boolean).sort())];
 
+  fillSelect('fBrand',  brands,   v => v);
   fillSelect('fDiam',   diams,    v => `${v}"`);
   fillSelect('fPcd',    pcds,     v => v);
   fillSelect('fFinish', finishes, v => v);
@@ -690,6 +701,7 @@ function toggleStock(btn) {
 
 function applyFilters() {
   const search = document.getElementById('search').value.trim().toLowerCase();
+  const brand  = document.getElementById('fBrand').value;
   const diam   = document.getElementById('fDiam').value;
   const pcd    = document.getElementById('fPcd').value;
   const finish = document.getElementById('fFinish').value;
@@ -697,6 +709,7 @@ function applyFilters() {
 
   let results = allWheels.filter(w => {
     if (!activeStock.has(w.inventory)) return false;
+    if (brand  && w.brand !== brand) return false;
     if (diam   && String(w.diameter) !== String(diam)) return false;
     if (pcd    && w.pcd !== pcd) return false;
     if (finish && w.finish !== finish) return false;
