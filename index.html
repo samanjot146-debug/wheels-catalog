@@ -85,12 +85,16 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 .spec{display:flex;flex-direction:column;gap:1px}
 .sl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#444;font-weight:600}
 .sv{font-size:12px;color:#ccc;font-weight:500}
-.cfoot{margin-top:auto;border-top:1px solid var(--border);padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cfoot{margin-top:auto;border-top:1px solid var(--border);padding-top:10px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
 .price{display:flex;flex-direction:column;line-height:1.2}
 .plabel{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#444}
 .pval{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.03em}
 .pval small{font-size:10px;color:var(--muted);font-weight:400}
 .pcall{font-size:12px;font-weight:700;color:var(--accent)}
+.pset{font-size:10px;color:var(--muted);margin-top:1px}
+.pset strong{color:var(--text)}
+.pdep{font-size:10px;color:var(--low);margin-top:1px}
+.pdep strong{color:var(--low)}
 .qbtn{background:var(--accent);color:#000;border:none;border-radius:var(--rs);font-size:11px;font-weight:800;padding:8px 12px;text-decoration:none;cursor:pointer;transition:opacity .15s;white-space:nowrap;flex-shrink:0}
 .qbtn:hover{opacity:.85}
 .card.oos .qbtn{background:#222;color:var(--muted)}
@@ -589,17 +593,25 @@ function card(w){
   let rc,ribbonLabel;
   if(w.delivery==='1-2 Business Days'){rc='ri';ribbonLabel='1-2 Bus. Days';}
   else if(w.delivery==='10-12 Business Days'){rc='rl';ribbonLabel='10-12 Bus. Days';}
-  else if(inv==='In Stock'){rc='ri';ribbonLabel='In Stock';}
-  else if(inv==='Low Stock'){rc='rl';ribbonLabel='Low Stock';}
+  else if(inv==='In Stock'){rc='ri';ribbonLabel='1-2 Bus. Days';} // Superspeed = Waterloo store
+  else if(inv==='Low Stock'){rc='rl';ribbonLabel='1-2 Bus. Days';}
   else{rc='ro';ribbonLabel='Out of Stock';}
   const imgH=w.face_img
     ?`<img src="${w.face_img}" alt="${w.model}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
     :`<div class="no-img">${wIcon()}</div>`;
+  const setPrice = w.msrp>0 ? w.msrp*4 : 0;
+  const deposit  = setPrice*0.5;
   const priceH=(w.msrp&&w.msrp>0)
-    ?`<div class="price"><span class="plabel">MSRP</span><span class="pval">$${w.msrp.toFixed(0)}<small>/ea</small></span></div>`
+    ?`<div class="price">
+        <span class="plabel">MSRP</span>
+        <span class="pval">$${w.msrp.toFixed(0)}<small>/ea</small></span>
+        <span class="pset">Set of 4: <strong>$${setPrice.toFixed(0)}</strong></span>
+        <span class="pdep">50% Deposit: <strong>$${deposit.toFixed(0)}</strong></span>
+      </div>`
     :`<div class="price"><span class="plabel">Price</span><span class="pcall">Call for Quote</span></div>`;
   const size=w.diameter&&w.width?`${w.diameter}" × ${w.width}`:'—';
-  const msg=encodeURIComponent(`Hi, I'm interested in the ${w.brand} ${w.model} ${w.diameter?w.diameter+'"':''} x ${w.width}${w.finish?' – '+w.finish:''} wheel${w.pcd?' ('+w.pcd+')':''}. ${w.sku?'SKU: '+w.sku+'. ':''}Can you give me a price for a set of 4?`);
+  const depText=setPrice>0?` Set of 4: $${setPrice.toFixed(0)}. 50% deposit to order: $${deposit.toFixed(0)}.`:'';
+  const msg=encodeURIComponent(`Hi! I'd like to order the ${w.brand} ${w.model} ${w.diameter?w.diameter+'"':''} x ${w.width}${w.finish?' – '+w.finish:''} wheel${w.pcd?' ('+w.pcd+')':''}.${w.sku?' SKU: '+w.sku+'.':''}${depText} Can you confirm availability and next steps?`);
   return`<div class="card${oos?' oos':''}">
     <div class="img-wrap">${imgH}<div class="ribbon ${rc}"><span class="rdot"></span>${ribbonLabel}</div></div>
     <div class="cbody">
@@ -610,7 +622,7 @@ function card(w){
         <div class="spec"><span class="sl">Offset</span><span class="sv">${w.et?'ET'+w.et:'—'}</span></div>
         <div class="spec"><span class="sl">Centre Bore</span><span class="sv">${w.cb||'—'}</span></div>
       </div>
-      <div class="cfoot">${priceH}<a class="qbtn" href="https://wa.me/${WA}?text=${msg}" target="_blank" rel="noopener">${oos?'Notify Me →':'Get Quote →'}</a></div>
+      <div class="cfoot">${priceH}<a class="qbtn" href="https://wa.me/${WA}?text=${msg}" target="_blank" rel="noopener">${oos?'Notify Me →':'Order Now →'}</a></div>
     </div>
   </div>`;
 }
