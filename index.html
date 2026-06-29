@@ -5,26 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wheel Catalog — President Tire & Wheels</title>
 <style>
-:root {
-  --bg:#000; --card:#0d0d0d; --card2:#111; --border:#1c1c1c;
-  --accent:#03ff7f; --adim:rgba(3,255,127,.10);
-  --text:#fff; --muted:#777; --subtle:#444;
-  --in:#03ff7f; --low:#f5a623; --out:#ff4444;
-  --r:12px; --rs:8px;
+:root{
+  --bg:#000;--card:#0d0d0d;--border:#1c1c1c;
+  --accent:#03ff7f;--adim:rgba(3,255,127,.10);
+  --text:#fff;--muted:#777;--subtle:#444;
+  --in:#03ff7f;--low:#f5a623;--out:#ff4444;
+  --r:12px;--rs:8px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.5;padding:14px;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;padding:14px}
 
 /* Header */
 .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-.hdr h2{font-size:22px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.hdr h2{font-size:22px;font-weight:800;letter-spacing:-.04em}
 .hdr h2 em{font-style:normal;color:var(--accent)}
 .hdr p{font-size:12px;color:var(--muted);margin-top:3px}
-.live{display:inline-flex;align-items:center;gap:6px;background:var(--adim);border:1px solid rgba(3,255,127,.25);color:var(--accent);font-size:10px;font-weight:700;padding:5px 11px;border-radius:20px;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;flex-shrink:0}
-.ldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s ease-in-out infinite}
+.live{display:inline-flex;align-items:center;gap:6px;background:var(--adim);border:1px solid rgba(3,255,127,.25);color:var(--accent);font-size:10px;font-weight:700;padding:5px 11px;border-radius:20px;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s infinite}
+
+/* Vehicle selector */
+.vsec{background:var(--card);border:1px solid rgba(3,255,127,.2);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.vsec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:10px;display:block}
+.vsec-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end}
+.vg{display:flex;flex-direction:column;gap:5px}
+.vl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--subtle)}
+.vsel{background:#181818;border:1px solid #2a2a2a;border-radius:var(--rs);color:var(--text);padding:8px 10px;font-size:13px;outline:none;width:100%;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23555'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;transition:border-color .15s}
+.vsel:focus{border-color:var(--accent)}
+.vsel:disabled{opacity:.4;cursor:not-allowed}
+.vclr{background:transparent;border:1px solid #333;color:var(--muted);padding:8px 14px;border-radius:var(--rs);font-size:12px;cursor:pointer;white-space:nowrap;transition:border-color .15s}
+.vclr:hover{border-color:var(--accent);color:var(--accent)}
+.vmatch{font-size:11px;color:var(--accent);margin-top:8px;font-weight:600}
 
 /* Filters */
-.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px}
 .fg{display:flex;flex-direction:column;gap:5px}
 .fg.full{grid-column:1/-1}
 .fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--subtle)}
@@ -34,16 +47,12 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 .pills{display:flex;gap:7px;flex-wrap:wrap}
 .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1px solid #2a2a2a;background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
 .pill .dot{width:6px;height:6px;border-radius:50%}
-/* Stock pills */
 .pill.on[data-stock="In Stock"]{border-color:var(--in);color:var(--in);background:rgba(3,255,127,.08)}
 .pill.on[data-stock="In Stock"] .dot{background:var(--in);animation:blink 2s infinite}
 .pill.on[data-stock="Low Stock"]{border-color:var(--low);color:var(--low);background:rgba(245,166,35,.08)}
 .pill.on[data-stock="Low Stock"] .dot{background:var(--low);animation:blink 2s infinite}
 .pill.on[data-stock="Out of Stock"]{border-color:var(--out);color:var(--out);background:rgba(255,68,68,.08)}
 .pill.on[data-stock="Out of Stock"] .dot{background:var(--out)}
-/* Brand pills */
-.pill.bon{border-color:var(--accent);color:var(--accent);background:var(--adim)}
-.pill.bon .dot{background:var(--accent)}
 
 /* Stats */
 .stats{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:12px;color:var(--muted)}
@@ -62,16 +71,16 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 .no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
 .ribbon{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;padding:4px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.07em;backdrop-filter:blur(6px)}
 .rdot{width:5px;height:5px;border-radius:50%}
-.ribbon.ri{background:rgba(0,0,0,.6);color:var(--in);border:1px solid rgba(3,255,127,.4)}
-.ribbon.ri .rdot{background:var(--in);animation:blink 2s infinite}
-.ribbon.rl{background:rgba(0,0,0,.6);color:var(--low);border:1px solid rgba(245,166,35,.4)}
-.ribbon.rl .rdot{background:var(--low);animation:blink 2s infinite}
-.ribbon.ro{background:rgba(0,0,0,.6);color:var(--out);border:1px solid rgba(255,68,68,.4)}
-.ribbon.ro .rdot{background:var(--out)}
+.ri{background:rgba(0,0,0,.6);color:var(--in);border:1px solid rgba(3,255,127,.4)}
+.ri .rdot{background:var(--in);animation:blink 2s infinite}
+.rl{background:rgba(0,0,0,.6);color:var(--low);border:1px solid rgba(245,166,35,.4)}
+.rl .rdot{background:var(--low);animation:blink 2s infinite}
+.ro{background:rgba(0,0,0,.6);color:var(--out);border:1px solid rgba(255,68,68,.4)}
+.ro .rdot{background:var(--out)}
 .cbody{padding:12px;display:flex;flex-direction:column;flex:1;gap:8px}
+.cbrand{font-size:10px;color:var(--subtle);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
 .cmodel{font-size:15px;font-weight:800;color:var(--accent);letter-spacing:-.03em;line-height:1.2}
 .cfinish{font-size:11px;color:var(--muted)}
-.cbrand{font-size:10px;color:var(--subtle);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
 .specs{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;border-top:1px solid var(--border);padding-top:8px}
 .spec{display:flex;flex-direction:column;gap:1px}
 .sl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#444;font-weight:600}
@@ -82,14 +91,13 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 .pval{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.03em}
 .pval small{font-size:10px;color:var(--muted);font-weight:400}
 .pcall{font-size:12px;font-weight:700;color:var(--accent)}
-.qbtn{background:var(--accent);color:#000;border:none;border-radius:var(--rs);font-size:11px;font-weight:800;padding:8px 12px;text-decoration:none;cursor:pointer;text-align:center;transition:opacity .15s,transform .1s;white-space:nowrap;flex-shrink:0;letter-spacing:.02em}
+.qbtn{background:var(--accent);color:#000;border:none;border-radius:var(--rs);font-size:11px;font-weight:800;padding:8px 12px;text-decoration:none;cursor:pointer;transition:opacity .15s;white-space:nowrap;flex-shrink:0}
 .qbtn:hover{opacity:.85}
 .card.oos .qbtn{background:#222;color:var(--muted)}
-.eta{font-size:10px;color:var(--low);text-align:center}
 
 /* Load more */
 .lmwrap{text-align:center;padding:24px 0 8px;grid-column:1/-1}
-.lmbtn{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:12px 32px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;letter-spacing:.03em}
+.lmbtn{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:12px 32px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;transition:background .15s}
 .lmbtn:hover{background:var(--adim)}
 .lmcount{font-size:11px;color:var(--muted);margin-top:8px}
 
@@ -98,54 +106,67 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 .spinner{width:36px;height:36px;border:3px solid #1a1a1a;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
 .state h3{font-size:15px;margin-bottom:6px;color:var(--text)}
 
-/* Animations */
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Mobile */
-@media(max-width:600px){
-  body{padding:10px}
+@media(max-width:650px){
+  .vsec-row{grid-template-columns:1fr 1fr}
   .filters{grid-template-columns:1fr 1fr}
-  .fg:first-child{grid-column:1/-1}
+  .fg:first-child,.fg.full{grid-column:1/-1}
   #grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-  .cmodel{font-size:13px}
-  .pval{font-size:15px}
 }
 </style>
 </head>
 <body>
 
+<!-- Header -->
 <div class="hdr">
-  <div>
-    <h2>Wheel <em>Catalog</em></h2>
-    <p>Live inventory from all suppliers</p>
-  </div>
-  <div class="live"><div class="ldot"></div> Live</div>
+  <div><h2>Wheel <em>Catalog</em></h2><p>Live inventory from all suppliers</p></div>
+  <div class="live"><div class="ldot"></div>Live</div>
 </div>
 
+<!-- Vehicle Selector -->
+<div class="vsec">
+  <span class="vsec-label">🚗 Find Wheels by Vehicle</span>
+  <div class="vsec-row">
+    <div class="vg"><label class="vl">Year</label>
+      <select class="vsel" id="vYear" onchange="onYearChange()">
+        <option value="">Select Year</option>
+      </select>
+    </div>
+    <div class="vg"><label class="vl">Make</label>
+      <select class="vsel" id="vMake" onchange="onMakeChange()" disabled>
+        <option value="">Select Make</option>
+      </select>
+    </div>
+    <div class="vg"><label class="vl">Model</label>
+      <select class="vsel" id="vModel" onchange="onModelChange()" disabled>
+        <option value="">Select Model</option>
+      </select>
+    </div>
+    <button class="vclr" onclick="clearVehicle()">Clear</button>
+  </div>
+  <div class="vmatch" id="vmatch" style="display:none"></div>
+</div>
+
+<!-- Filters -->
 <div class="filters">
-  <div class="fg">
-    <label class="fl">Search</label>
+  <div class="fg"><label class="fl">Search</label>
     <input type="text" id="fsearch" placeholder="Model, SKU, brand…" oninput="applyFilters()">
   </div>
-  <div class="fg">
-    <label class="fl">Size</label>
+  <div class="fg"><label class="fl">Brand</label>
+    <select id="fbrand" onchange="applyFilters()"><option value="">All brands</option></select>
+  </div>
+  <div class="fg"><label class="fl">Size</label>
     <select id="fdiam" onchange="applyFilters()"><option value="">All sizes</option></select>
   </div>
-  <div class="fg">
-    <label class="fl">Bolt Pattern</label>
+  <div class="fg"><label class="fl">Bolt Pattern</label>
     <select id="fpcd" onchange="applyFilters()"><option value="">All patterns</option></select>
   </div>
-  <div class="fg">
-    <label class="fl">Finish</label>
+  <div class="fg"><label class="fl">Finish</label>
     <select id="ffinish" onchange="applyFilters()"><option value="">All finishes</option></select>
   </div>
-  <div class="fg full">
-    <label class="fl">Brand</label>
-    <div class="pills" id="brandpills"></div>
-  </div>
-  <div class="fg full">
-    <label class="fl">Availability</label>
+  <div class="fg full"><label class="fl">Availability</label>
     <div class="pills">
       <button class="pill on" data-stock="In Stock" onclick="toggleStock(this)"><span class="dot"></span>In Stock</button>
       <button class="pill on" data-stock="Low Stock" onclick="toggleStock(this)"><span class="dot"></span>Low Stock</button>
@@ -154,6 +175,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
   </div>
 </div>
 
+<!-- Stats -->
 <div class="stats">
   <span id="rcount">Loading…</span>
   <select class="sort" id="sortby" onchange="applyFilters()">
@@ -165,223 +187,337 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
   </select>
 </div>
 
+<!-- Grid -->
 <div id="grid">
   <div class="state"><div class="spinner"></div><h3>Loading inventory…</h3><p>Fetching from all suppliers</p></div>
 </div>
 
 <script>
-// ── CONFIG ───────────────────────────────────
-const WORKER       = 'https://superspeed-proxy.samanjot146.workers.dev';
-const AC_URL       = 'https://samanjot146-debug.github.io/wheels-catalog/wheels.csv';
-const WA           = '12266981667';
-const PAGE         = 60;
+// ── CONFIG ────────────────────────────────────
+const WORKER = 'https://superspeed-proxy.samanjot146.workers.dev';
+const AC_URL = 'https://samanjot146-debug.github.io/wheels-catalog/wheels.csv';
+const WA     = '12266981667';
+const PAGE   = 24;
 
-// ── STATE ────────────────────────────────────
-let allWheels      = [];
-let filteredWheels = [];
-let activeBrands   = new Set();
-const activeStock  = new Set(['In Stock','Low Stock']);
-let page           = 0;
+// ── VEHICLE DATABASE ──────────────────────────
+// [Make, Model, YearFrom, YearTo, PCD]
+const VD = [
+  ['Honda','Civic',1992,2005,'4x100'],
+  ['Honda','Civic',2006,2025,'5x114.3'],
+  ['Honda','Accord',1990,2002,'4x114.3'],
+  ['Honda','Accord',2003,2025,'5x114.3'],
+  ['Honda','CR-V',1997,2001,'4x114.3'],
+  ['Honda','CR-V',2002,2025,'5x114.3'],
+  ['Honda','HR-V',2016,2025,'5x114.3'],
+  ['Honda','Pilot',2003,2025,'5x114.3'],
+  ['Toyota','Camry',1997,2001,'5x100'],
+  ['Toyota','Camry',2002,2025,'5x114.3'],
+  ['Toyota','Corolla',1993,2008,'4x100'],
+  ['Toyota','Corolla',2009,2025,'5x100'],
+  ['Toyota','RAV4',1996,2025,'5x114.3'],
+  ['Toyota','Highlander',2001,2025,'5x114.3'],
+  ['Toyota','Tacoma',1995,2004,'6x114.3'],
+  ['Toyota','Tacoma',2005,2025,'6x139.7'],
+  ['Toyota','Tundra',2000,2006,'5x150'],
+  ['Toyota','Tundra',2007,2025,'5x150'],
+  ['Toyota','4Runner',1996,2025,'6x139.7'],
+  ['Nissan','Altima',1993,2001,'4x114.3'],
+  ['Nissan','Altima',2002,2025,'5x114.3'],
+  ['Nissan','Sentra',1995,2006,'4x114.3'],
+  ['Nissan','Sentra',2007,2025,'5x114.3'],
+  ['Nissan','Rogue',2008,2025,'5x114.3'],
+  ['Nissan','Pathfinder',1996,2004,'6x114.3'],
+  ['Nissan','Pathfinder',2005,2025,'5x114.3'],
+  ['Nissan','Frontier',1998,2025,'6x114.3'],
+  ['Nissan','Titan',2004,2025,'6x139.7'],
+  ['Nissan','Murano',2003,2025,'5x114.3'],
+  ['Ford','F-150',1997,2003,'5x135'],
+  ['Ford','F-150',2004,2025,'6x135'],
+  ['Ford','Mustang',1994,2025,'5x114.3'],
+  ['Ford','Escape',2001,2025,'5x108'],
+  ['Ford','Focus',2000,2011,'4x108'],
+  ['Ford','Focus',2012,2018,'5x108'],
+  ['Ford','Fusion',2006,2020,'5x108'],
+  ['Ford','Explorer',2002,2010,'5x114.3'],
+  ['Ford','Explorer',2011,2025,'5x114.3'],
+  ['Ford','Ranger',1993,2011,'5x114.3'],
+  ['Ford','Ranger',2019,2025,'6x139.7'],
+  ['Chevrolet','Silverado 1500',1999,2025,'6x139.7'],
+  ['Chevrolet','Colorado',2004,2025,'6x139.7'],
+  ['Chevrolet','Camaro',2010,2025,'5x120'],
+  ['Chevrolet','Cruze',2011,2019,'5x105'],
+  ['Chevrolet','Malibu',2004,2012,'5x110'],
+  ['Chevrolet','Malibu',2013,2025,'5x115'],
+  ['Chevrolet','Equinox',2005,2025,'5x110'],
+  ['GMC','Sierra 1500',1999,2025,'6x139.7'],
+  ['GMC','Canyon',2004,2025,'6x139.7'],
+  ['Dodge','Challenger',2008,2025,'5x115'],
+  ['Dodge','Charger',2006,2025,'5x115'],
+  ['Dodge','Durango',2004,2009,'5x139.7'],
+  ['Dodge','Durango',2011,2025,'5x127'],
+  ['Ram','1500',2002,2018,'5x139.7'],
+  ['Ram','1500',2019,2025,'6x139.7'],
+  ['Jeep','Wrangler',1987,2006,'5x114.3'],
+  ['Jeep','Wrangler',2007,2025,'5x127'],
+  ['Jeep','Grand Cherokee',1993,2004,'5x114.3'],
+  ['Jeep','Grand Cherokee',2005,2025,'5x127'],
+  ['Subaru','Impreza',1993,2025,'5x100'],
+  ['Subaru','WRX / STI',2002,2025,'5x100'],
+  ['Subaru','Outback',2000,2025,'5x100'],
+  ['Subaru','Forester',1998,2025,'5x100'],
+  ['Volkswagen','Jetta',1993,1999,'4x100'],
+  ['Volkswagen','Jetta',2000,2025,'5x112'],
+  ['Volkswagen','Golf / GTI',1993,1999,'4x100'],
+  ['Volkswagen','Golf / GTI',2000,2025,'5x112'],
+  ['Volkswagen','Tiguan',2009,2025,'5x112'],
+  ['Volkswagen','Passat',2002,2025,'5x112'],
+  ['Audi','A4',1996,2025,'5x112'],
+  ['Audi','Q5',2009,2025,'5x112'],
+  ['BMW','3 Series',1994,2025,'5x120'],
+  ['BMW','5 Series',1996,2025,'5x120'],
+  ['BMW','X3',2004,2025,'5x120'],
+  ['BMW','X5',2000,2025,'5x120'],
+  ['Mercedes-Benz','C-Class',2001,2025,'5x112'],
+  ['Mercedes-Benz','E-Class',2003,2025,'5x112'],
+  ['Mercedes-Benz','GLC',2016,2025,'5x112'],
+  ['Hyundai','Elantra',2001,2010,'4x114.3'],
+  ['Hyundai','Elantra',2011,2025,'5x114.3'],
+  ['Hyundai','Sonata',1999,2025,'5x114.3'],
+  ['Hyundai','Tucson',2005,2025,'5x114.3'],
+  ['Hyundai','Santa Fe',2001,2025,'5x114.3'],
+  ['Kia','Forte',2010,2025,'5x114.3'],
+  ['Kia','Sportage',2005,2025,'5x114.3'],
+  ['Kia','Sorento',2003,2025,'5x114.3'],
+  ['Kia','Stinger',2018,2025,'5x114.3'],
+  ['Mazda','Mazda3',2004,2025,'5x114.3'],
+  ['Mazda','Mazda6',2003,2025,'5x114.3'],
+  ['Mazda','CX-5',2013,2025,'5x114.3'],
+  ['Mazda','MX-5 Miata',1990,2005,'4x100'],
+  ['Mazda','MX-5 Miata',2006,2025,'5x114.3'],
+  ['Acura','TL',1999,2008,'5x120'],
+  ['Acura','TLX',2015,2025,'5x114.3'],
+  ['Acura','MDX',2001,2025,'5x120'],
+  ['Lexus','IS',2001,2025,'5x114.3'],
+  ['Lexus','ES',2007,2025,'5x114.3'],
+  ['Pontiac','G6',2005,2010,'5x110'],
+  ['Buick','LaCrosse',2005,2025,'5x115'],
+  ['Cadillac','CTS',2003,2019,'5x120'],
+];
 
-// ── BOOT ─────────────────────────────────────
+// ── STATE ─────────────────────────────────────
+let allWheels = [], filteredWheels = [];
+const activeStock = new Set(['In Stock','Low Stock']);
+let curPage = 0;
+
+// ── BOOT ──────────────────────────────────────
 async function boot() {
   const [ss, ac] = await Promise.allSettled([fetchSuperspeed(), fetchAutocountry()]);
-  const ssW = ss.status === 'fulfilled' ? ss.value : [];
-  const acW = ac.status === 'fulfilled' ? ac.value : [];
+  const ssW = ss.status==='fulfilled' ? ss.value : [];
+  const acW = ac.status==='fulfilled' ? ac.value : [];
   allWheels = [...ssW, ...acW];
   if (!allWheels.length) { showState('No wheels found','Check supplier connections.'); return; }
   buildFilters();
+  buildVehicleYears();
   applyFilters();
 }
 
-// ── SUPERSPEED ───────────────────────────────
+// ── SUPERSPEED ────────────────────────────────
 async function fetchSuperspeed() {
   const res  = await fetch(`${WORKER}/all`);
   const json = await res.json();
   if (json.error) throw new Error(json.error);
-  return parseSuperspeedData(json);
-}
-
-function parseSuperspeedData(json) {
   let raw = json.data ?? json;
-  if (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch { raw = parseGenericCSV(raw); } }
+  if (typeof raw === 'string') { try{raw=JSON.parse(raw);}catch{raw=parseCSVGeneric(raw);} }
   if (!Array.isArray(raw)) raw = [raw];
-  return raw.map(normalizeSuperspeed).filter(w => w.sku || w.model);
+  return raw.map(normalizeSuperspeed).filter(w=>w.sku||w.model);
 }
 
 function normalizeSuperspeed(w) {
-  const o = {};
-  for (const [k,v] of Object.entries(w)) o[k.toLowerCase().trim()] = typeof v==='string'?v.trim():v;
-
-  // Inventory: API column is "INVENTORY ON" (Ontario)
-  const inv = o['inventory on'] ?? o.inventory ?? '';
-  const invLow = (inv+'').toLowerCase().trim();
-  let inventory = 'Out of Stock';
-  if (invLow === 'in stock')      inventory = 'In Stock';
-  else if (invLow.startsWith('low')) inventory = 'Low Stock';
-
-  // Images: replace localhost with real B2B server path
-  let face_img = (o.face_img || '');
-  face_img = face_img.replace(
+  const o={};
+  for(const[k,v] of Object.entries(w)) o[k.toLowerCase().trim()]=typeof v==='string'?v.trim():v;
+  const inv=(o['inventory on']??o.inventory??'').toLowerCase().trim();
+  let inventory='Out of Stock';
+  if(inv==='in stock') inventory='In Stock';
+  else if(inv.startsWith('low')) inventory='Low Stock';
+  let img=(o.face_img||'').replace(
     /https?:\/\/localhost:\d+\/api\/Product\/GetImage\?imgName=/g,
     'https://b2b.super-speed.ca/webapi/api//Product/GetImage?imgName='
   );
-  // First image only
-  const firstImg = face_img.split('/http').map((s,i)=>i===0?s:'http'+s).filter(s=>s.startsWith('http'))[0]||'';
-
-  return {
-    source:'superspeed', sku:o.sku||'', brand:o.brand||'Superspeed',
-    model:o.model||'', diameter:parseFloat(o.diameter)||0,
-    width:parseFloat(o.width)||0, et:parseFloat(o.et)||0,
-    pcd:o.pcd||'', cb:parseFloat(o.cb)||0, finish:o.finish||'',
-    msrp:parseFloat(o.msrp)||0, inventory, face_img:firstImg, eta:o.eta||''
-  };
+  img=img.split('/http').map((s,i)=>i===0?s:'http'+s).filter(s=>s.startsWith('http'))[0]||'';
+  return{source:'superspeed',sku:o.sku||'',brand:o.brand||'Superspeed',
+    model:o.model||'',diameter:parseFloat(o.diameter)||0,width:parseFloat(o.width)||0,
+    et:parseFloat(o.et)||0,pcd:o.pcd||'',cb:parseFloat(o.cb)||0,finish:o.finish||'',
+    msrp:parseFloat(o.msrp)||0,inventory,face_img:img,eta:o.eta||''};
 }
 
-// ── AUTOCOUNTRY ──────────────────────────────
+// ── AUTOCOUNTRY ───────────────────────────────
 async function fetchAutocountry() {
-  const res  = await fetch(AC_URL);
+  const res = await fetch(AC_URL);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return parseAutocountry(await res.text());
 }
 
 function parseAutocountry(csv) {
   const lines = csv.split(/\r?\n/).filter(l=>l.trim());
-  if (lines.length < 2) return [];
-
-  // Parse header to find column indexes
-  const hRaw = parseCSVLine(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim());
+  if (lines.length<2) return [];
+  const hRaw = parseLine(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim());
   const hLow = hRaw.map(h=>h.toLowerCase());
   const fi   = t => hLow.findIndex(h=>h.includes(t));
-
-  // Known Autocountry columns:
-  // Manufacturer, Model, SKU, Description, Finish, Diameter, Width,
-  // Bolt Pattern, Offset, Backspace, GTIN, Bore, Lugs, Lug Type,
-  // Max Load lbs, Cost, AC-EDM, AC-OAK, MAP, Image 1...Image 6
+  // Known columns: Manufacturer(0),Model(1),SKU(2),Description(3),Finish(4),
+  // Diameter(5),Width(6),Bolt Pattern(7),Offset(8),Bore(11),Cost(15),
+  // AC-EDM(16),AC-OAK(17),MAP(18),Image 1(19)
   const C = {
-    brand : fi('manufacturer'),
-    model : fi('model'),
-    sku   : fi('sku'),
-    finish: fi('finish'),
-    diam  : fi('diameter'),
-    width : fi('width'),
-    pcd   : fi('bolt'),
-    et    : fi('offset'),
-    cb    : fi('bore'),
-    edm   : fi('edm'),   // AC-EDM warehouse qty
-    oak   : fi('oak'),   // AC-OAK warehouse qty
-    map   : fi('map'),   // MAP price
-    cost  : fi('cost'),
-    img   : fi('image 1') >= 0 ? fi('image 1') : fi('image'),
+    brand:fi('manufacturer'), model:fi('model'), sku:fi('sku'),
+    finish:fi('finish'), diam:fi('diameter'), width:fi('width'),
+    pcd:fi('bolt'), et:fi('offset'), cb:fi('bore'),
+    edm:fi('edm'), oak:fi('oak'),
+    map:fi('map'), cost:fi('cost'),
+    img:fi('image 1')>=0?fi('image 1'):fi('image'),
   };
-
-  const priceCol = C.map >= 0 ? C.map : C.cost;
-
-  const wheels = [];
-  for (const line of lines.slice(1)) {
-    if (!line.trim()) continue;
-    const v   = parseCSVLine(line).map(x=>x.replace(/^"|"$/g,'').trim());
-    const g   = i => (i>=0&&i<v.length) ? v[i] : '';
-
-    // Stock = sum of both warehouses
-    const qty = (parseInt(g(C.edm))||0) + (parseInt(g(C.oak))||0);
-    const inventory = qty > 3 ? 'In Stock' : qty > 0 ? 'Low Stock' : 'Out of Stock';
-
-    const msrp = parseFloat((g(priceCol)||'0').replace(/[^0-9.]/g,'')) || 0;
-
-    // First image URL
-    const imgUrl = (C.img >= 0 ? g(C.img) : '') || '';
-
+  const priceCol = C.map>=0 ? C.map : C.cost;
+  const wheels=[];
+  for(const line of lines.slice(1)){
+    if(!line.trim()) continue;
+    const v=parseLine(line).map(x=>x.replace(/^"|"$/g,'').trim());
+    const g=i=>(i>=0&&i<v.length)?v[i]:'';
+    const qty=(parseInt(g(C.edm))||0)+(parseInt(g(C.oak))||0);
+    const inventory=qty>3?'In Stock':qty>0?'Low Stock':'Out of Stock';
+    const msrp=parseFloat((g(priceCol)||'0').replace(/[^0-9.]/g,''))||0;
     wheels.push({
-      source:'autocountry', sku:g(C.sku), brand:g(C.brand)||'Unknown',
-      model:g(C.model), diameter:parseFloat(g(C.diam))||0,
-      width:parseFloat(g(C.width))||0, et:parseFloat(g(C.et))||0,
-      pcd:g(C.pcd), cb:parseFloat(g(C.cb))||0, finish:g(C.finish),
-      msrp, inventory, face_img:imgUrl, eta:''
+      source:'autocountry',sku:g(C.sku),brand:g(C.brand)||'Unknown',
+      model:g(C.model),diameter:parseFloat(g(C.diam))||0,
+      width:parseFloat(g(C.width))||0,et:parseFloat(g(C.et))||0,
+      pcd:g(C.pcd),cb:parseFloat(g(C.cb))||0,finish:g(C.finish),
+      msrp,inventory,face_img:g(C.img),eta:''
     });
   }
-
-  const result = wheels.filter(w=>w.sku||w.model);
-  console.log(`Autocountry: ${result.length} wheels, cols:`, JSON.stringify(C));
+  const result=wheels.filter(w=>w.sku||w.model);
+  console.log(`AC: ${result.length} wheels, edm:${C.edm} oak:${C.oak} map:${C.map}`);
   return result;
 }
 
-// ── CSV LINE PARSER ───────────────────────────
-function parseCSVLine(line) {
+function parseLine(line) {
   const out=[]; let cur='',inQ=false;
-  for (let i=0;i<line.length;i++) {
+  for(let i=0;i<line.length;i++){
     const c=line[i];
-    if (c==='"') inQ=!inQ;
-    else if (c===','&&!inQ){out.push(cur);cur='';}
+    if(c==='"') inQ=!inQ;
+    else if(c===','&&!inQ){out.push(cur);cur='';}
     else cur+=c;
   }
   out.push(cur);
   return out;
 }
 
-function parseGenericCSV(csv) {
+function parseCSVGeneric(csv) {
   const lines=csv.split(/\r?\n/).filter(l=>l.trim());
-  if (lines.length<2) return [];
-  const headers=parseCSVLine(lines[0]).map(h=>h.replace(/"/g,'').trim().toLowerCase());
+  if(lines.length<2) return [];
+  const heads=parseLine(lines[0]).map(h=>h.replace(/"/g,'').trim().toLowerCase());
   return lines.slice(1).map(line=>{
-    const vals=parseCSVLine(line).map(v=>v.replace(/"/g,'').trim());
-    const o={};
-    headers.forEach((h,i)=>o[h]=vals[i]||'');
-    return o;
+    const v=parseLine(line).map(x=>x.replace(/"/g,'').trim());
+    const o={};heads.forEach((h,i)=>o[h]=v[i]||'');return o;
   });
+}
+
+// ── VEHICLE SELECTOR ──────────────────────────
+function buildVehicleYears() {
+  const yr=document.getElementById('vYear');
+  const years=[...new Set(VD.flatMap(v=>{
+    const ys=[];for(let y=v[2];y<=v[3];y++) ys.push(y);return ys;
+  }))].sort((a,b)=>b-a);
+  yr.innerHTML='<option value="">Select Year</option>'+years.map(y=>`<option>${y}</option>`).join('');
+}
+
+function onYearChange() {
+  const yr=+document.getElementById('vYear').value;
+  const mk=document.getElementById('vMake');
+  const mo=document.getElementById('vModel');
+  mk.innerHTML='<option value="">Select Make</option>';
+  mo.innerHTML='<option value="">Select Model</option>';
+  mk.disabled=!yr; mo.disabled=true;
+  if(!yr) return;
+  const makes=[...new Set(VD.filter(v=>yr>=v[2]&&yr<=v[3]).map(v=>v[0]))].sort();
+  mk.innerHTML='<option value="">Select Make</option>'+makes.map(m=>`<option>${m}</option>`).join('');
+}
+
+function onMakeChange() {
+  const yr=+document.getElementById('vYear').value;
+  const make=document.getElementById('vMake').value;
+  const mo=document.getElementById('vModel');
+  mo.innerHTML='<option value="">Select Model</option>';
+  mo.disabled=!make;
+  if(!make) return;
+  const models=[...new Set(VD.filter(v=>yr>=v[2]&&yr<=v[3]&&v[0]===make).map(v=>v[1]))].sort();
+  mo.innerHTML='<option value="">Select Model</option>'+models.map(m=>`<option>${m}</option>`).join('');
+}
+
+function onModelChange() {
+  const yr=+document.getElementById('vYear').value;
+  const make=document.getElementById('vMake').value;
+  const model=document.getElementById('vModel').value;
+  const vm=document.getElementById('vmatch');
+  if(!model){vm.style.display='none';return;}
+  const match=VD.find(v=>yr>=v[2]&&yr<=v[3]&&v[0]===make&&v[1]===model);
+  if(match){
+    const pcd=match[4];
+    vm.textContent=`✓ ${yr} ${make} ${model} → Bolt Pattern: ${pcd}`;
+    vm.style.display='block';
+    // Set PCD filter
+    const sel=document.getElementById('fpcd');
+    sel.value=pcd;
+    if(!sel.value) sel.value=''; // fallback if exact not in list
+    applyFilters();
+  }
+}
+
+function clearVehicle() {
+  ['vYear','vMake','vModel'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('vMake').disabled=true;
+  document.getElementById('vModel').disabled=true;
+  document.getElementById('vmatch').style.display='none';
+  document.getElementById('fpcd').value='';
+  applyFilters();
 }
 
 // ── FILTERS ───────────────────────────────────
 function buildFilters() {
-  const brands  = [...new Set(allWheels.map(w=>w.brand).filter(Boolean).sort())];
-  const diams   = [...new Set(allWheels.map(w=>w.diameter).filter(Boolean).sort((a,b)=>a-b))];
-  const pcds    = [...new Set(allWheels.map(w=>w.pcd).filter(Boolean).sort())];
-  const finishes= [...new Set(allWheels.map(w=>w.finish).filter(Boolean).sort())];
-
-  // Brand pills — all on by default
-  activeBrands = new Set(brands);
-  document.getElementById('brandpills').innerHTML = brands.map(b=>
-    `<button class="pill bon" data-brand="${b}" onclick="toggleBrand(this)"><span class="dot"></span>${b}</button>`
-  ).join('');
-
+  const brands  =[...new Set(allWheels.map(w=>w.brand).filter(Boolean).sort())];
+  const diams   =[...new Set(allWheels.map(w=>w.diameter).filter(Boolean).sort((a,b)=>a-b))];
+  const pcds    =[...new Set(allWheels.map(w=>w.pcd).filter(Boolean).sort())];
+  const finishes=[...new Set(allWheels.map(w=>w.finish).filter(Boolean).sort())];
+  fillSel('fbrand',  brands,   v=>v);
   fillSel('fdiam',   diams,    v=>`${v}"`);
   fillSel('fpcd',    pcds,     v=>v);
   fillSel('ffinish', finishes, v=>v);
 }
 
-function fillSel(id, items, label) {
-  const s=document.getElementById(id), cur=s.value;
+function fillSel(id,items,label) {
+  const s=document.getElementById(id),cur=s.value;
   s.innerHTML='<option value="">All</option>'+items.map(v=>`<option value="${v}">${label(v)}</option>`).join('');
   s.value=cur;
 }
 
 function toggleStock(btn) {
-  const s=btn.dataset.stock;
-  btn.classList.toggle('on') ? activeStock.add(s) : activeStock.delete(s);
-  applyFilters();
-}
-
-function toggleBrand(btn) {
-  const b=btn.dataset.brand;
-  if (btn.classList.toggle('bon')) activeBrands.add(b); else activeBrands.delete(b);
+  const st=btn.dataset.stock;
+  btn.classList.toggle('on')?activeStock.add(st):activeStock.delete(st);
   applyFilters();
 }
 
 // ── APPLY FILTERS ─────────────────────────────
 function applyFilters() {
-  const search = document.getElementById('fsearch').value.trim().toLowerCase();
-  const diam   = document.getElementById('fdiam').value;
-  const pcd    = document.getElementById('fpcd').value;
-  const finish = document.getElementById('ffinish').value;
-  const sortBy = document.getElementById('sortby').value;
+  const search=document.getElementById('fsearch').value.trim().toLowerCase();
+  const brand =document.getElementById('fbrand').value;
+  const diam  =document.getElementById('fdiam').value;
+  const pcd   =document.getElementById('fpcd').value;
+  const finish=document.getElementById('ffinish').value;
+  const sortBy=document.getElementById('sortby').value;
 
-  filteredWheels = allWheels.filter(w=>{
-    if (!activeStock.has(w.inventory)) return false;
-    if (activeBrands.size && !activeBrands.has(w.brand)) return false;
-    if (diam   && String(w.diameter)!==String(diam))  return false;
-    if (pcd    && w.pcd!==pcd)    return false;
-    if (finish && w.finish!==finish) return false;
-    if (search && !([w.model,w.sku,w.brand,w.finish].join(' ').toLowerCase().includes(search))) return false;
+  filteredWheels=allWheels.filter(w=>{
+    if(!activeStock.has(w.inventory)) return false;
+    if(brand  && w.brand!==brand)           return false;
+    if(diam   && String(w.diameter)!==diam) return false;
+    if(pcd    && w.pcd!==pcd)               return false;
+    if(finish && w.finish!==finish)         return false;
+    if(search && ![w.model,w.sku,w.brand,w.finish].join(' ').toLowerCase().includes(search)) return false;
     return true;
   });
 
@@ -395,104 +531,82 @@ function applyFilters() {
     }
   });
 
-  const inStock  = allWheels.filter(w=>w.inventory==='In Stock').length;
-  const lowStock = allWheels.filter(w=>w.inventory==='Low Stock').length;
-  document.getElementById('rcount').innerHTML =
-    `Showing <strong>${Math.min(PAGE,filteredWheels.length)}</strong> of <strong>${filteredWheels.length}</strong> &nbsp;·&nbsp; `+
-    `<span style="color:var(--in)">${inStock} in stock</span> &nbsp;·&nbsp; `+
-    `<span style="color:var(--low)">${lowStock} low stock</span>`;
-
-  page = 0;
+  curPage=0;
   renderPage(true);
 }
 
 // ── RENDER ────────────────────────────────────
 function renderPage(reset) {
-  const grid = document.getElementById('grid');
-  if (filteredWheels.length === 0) {
-    grid.innerHTML = '<div class="state"><h3>No wheels match your filters</h3><p>Try adjusting brand, size, or availability.</p></div>';
-    return;
+  const grid=document.getElementById('grid');
+  if(!filteredWheels.length){
+    grid.innerHTML='<div class="state"><h3>No wheels match</h3><p>Try adjusting your filters.</p></div>';
+    updateCount();return;
   }
-  const slice = filteredWheels.slice(0, (page+1)*PAGE);
-  if (reset) grid.innerHTML = slice.map(card).join('');
-  else {
-    const old = grid.querySelector('.lmwrap'); if(old) old.remove();
-    const tmp = document.createElement('div');
-    tmp.innerHTML = filteredWheels.slice(page*PAGE,(page+1)*PAGE).map(card).join('');
+  if(reset){
+    grid.innerHTML=filteredWheels.slice(0,PAGE).map(card).join('');
+  } else {
+    const old=grid.querySelector('.lmwrap');if(old)old.remove();
+    const tmp=document.createElement('div');
+    tmp.innerHTML=filteredWheels.slice(curPage*PAGE,(curPage+1)*PAGE).map(card).join('');
     while(tmp.firstChild) grid.appendChild(tmp.firstChild);
   }
-  page++;
-  // Load more button
-  const old2 = grid.querySelector('.lmwrap'); if(old2) old2.remove();
-  if (page*PAGE < filteredWheels.length) {
-    const rem = filteredWheels.length - page*PAGE;
-    const wrap = document.createElement('div');
-    wrap.className='lmwrap';
-    wrap.innerHTML=`<button class="lmbtn" onclick="loadMore()">Show More (${rem} remaining)</button><div class="lmcount">Showing ${Math.min(page*PAGE,filteredWheels.length)} of ${filteredWheels.length}</div>`;
-    grid.appendChild(wrap);
+  curPage++;
+  // Load more
+  const old=grid.querySelector('.lmwrap');if(old)old.remove();
+  const shown=Math.min(curPage*PAGE,filteredWheels.length);
+  if(shown<filteredWheels.length){
+    const rem=filteredWheels.length-shown;
+    const w=document.createElement('div');
+    w.className='lmwrap';
+    w.innerHTML=`<button class="lmbtn" onclick="loadMore()">Show More (${rem} more)</button><div class="lmcount">Showing ${shown} of ${filteredWheels.length}</div>`;
+    grid.appendChild(w);
   }
-  // Update count
-  document.getElementById('rcount').innerHTML =
-    `Showing <strong>${Math.min(page*PAGE,filteredWheels.length)}</strong> of <strong>${filteredWheels.length}</strong> &nbsp;·&nbsp; `+
-    `<span style="color:var(--in)">${allWheels.filter(w=>w.inventory==='In Stock').length} in stock</span> &nbsp;·&nbsp; `+
-    `<span style="color:var(--low)">${allWheels.filter(w=>w.inventory==='Low Stock').length} low stock</span>`;
+  updateCount();
 }
 
-function loadMore() { renderPage(false); }
+function loadMore(){renderPage(false);}
+
+function updateCount(){
+  const shown=Math.min(curPage*PAGE,filteredWheels.length);
+  const inS=allWheels.filter(w=>w.inventory==='In Stock').length;
+  const loS=allWheels.filter(w=>w.inventory==='Low Stock').length;
+  document.getElementById('rcount').innerHTML=
+    `Showing <strong>${shown}</strong> of <strong>${filteredWheels.length}</strong> &nbsp;·&nbsp; `+
+    `<span style="color:var(--in)">${inS} in stock</span> &nbsp;·&nbsp; `+
+    `<span style="color:var(--low)">${loS} low stock</span>`;
+}
 
 // ── CARD ──────────────────────────────────────
-function card(w) {
-  const inv = w.inventory || 'Out of Stock';
-  const rc  = inv==='In Stock'?'ri':inv==='Low Stock'?'rl':'ro';
-  const oos = inv==='Out of Stock';
-
-  const imgHtml = w.face_img
-    ? `<img src="${w.face_img}" alt="${w.model}" loading="lazy" onerror="this.parentNode.innerHTML=noImg()">`
-    : `<div class="no-img">${noImg()}</div>`;
-
-  const etaParts = (w.eta||'').split('|');
-  const etaHtml  = oos && w.eta ? `<div class="eta">ETA: ${w.eta.trim()}</div>` : '';
-
-  const priceHtml = (w.msrp && w.msrp > 0)
-    ? `<div class="price"><span class="plabel">MSRP</span><span class="pval">$${w.msrp.toFixed(0)}<small>/ea</small></span></div>`
-    : `<div class="price"><span class="plabel">Price</span><span class="pcall">Call for Quote</span></div>`;
-
-  const size = w.diameter && w.width ? `${w.diameter}" × ${w.width}` : '—';
-
-  const msg = encodeURIComponent(
-    `Hi, I'm interested in the ${w.brand} ${w.model} ${w.diameter?w.diameter+'"':''} x ${w.width}${w.finish?' – '+w.finish:''} wheel${w.pcd?' ('+w.pcd+')':''}. ${w.sku?'SKU: '+w.sku+'. ':''}Can you give me a price for a set of 4?`
-  );
-
-  return `<div class="card${oos?' oos':''}">
-    <div class="img-wrap">${imgHtml}<div class="ribbon ${rc}"><span class="rdot"></span>${inv}</div></div>
+function card(w){
+  const inv=w.inventory||'Out of Stock';
+  const rc=inv==='In Stock'?'ri':inv==='Low Stock'?'rl':'ro';
+  const oos=inv==='Out of Stock';
+  const imgH=w.face_img
+    ?`<img src="${w.face_img}" alt="${w.model}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
+    :`<div class="no-img">${wIcon()}</div>`;
+  const priceH=(w.msrp&&w.msrp>0)
+    ?`<div class="price"><span class="plabel">MSRP</span><span class="pval">$${w.msrp.toFixed(0)}<small>/ea</small></span></div>`
+    :`<div class="price"><span class="plabel">Price</span><span class="pcall">Call for Quote</span></div>`;
+  const size=w.diameter&&w.width?`${w.diameter}" × ${w.width}`:'—';
+  const msg=encodeURIComponent(`Hi, I'm interested in the ${w.brand} ${w.model} ${w.diameter?w.diameter+'"':''} x ${w.width}${w.finish?' – '+w.finish:''} wheel${w.pcd?' ('+w.pcd+')':''}. ${w.sku?'SKU: '+w.sku+'. ':''}Can you give me a price for a set of 4?`);
+  return`<div class="card${oos?' oos':''}">
+    <div class="img-wrap">${imgH}<div class="ribbon ${rc}"><span class="rdot"></span>${inv}</div></div>
     <div class="cbody">
-      <div>
-        <div class="cbrand">${w.brand}</div>
-        <div class="cmodel">${w.model||'N/A'}</div>
-        <div class="cfinish">${w.finish||''}</div>
-      </div>
+      <div><div class="cbrand">${w.brand}</div><div class="cmodel">${w.model||'N/A'}</div><div class="cfinish">${w.finish||''}</div></div>
       <div class="specs">
         <div class="spec"><span class="sl">Size</span><span class="sv">${size}</span></div>
         <div class="spec"><span class="sl">Bolt Pattern</span><span class="sv">${w.pcd||'—'}</span></div>
         <div class="spec"><span class="sl">Offset</span><span class="sv">${w.et?'ET'+w.et:'—'}</span></div>
         <div class="spec"><span class="sl">Centre Bore</span><span class="sv">${w.cb||'—'}</span></div>
       </div>
-      ${etaHtml}
-      <div class="cfoot">
-        ${priceHtml}
-        <a class="qbtn" href="https://wa.me/${WA}?text=${msg}" target="_blank" rel="noopener">${oos?'Notify Me →':'Get Quote →'}</a>
-      </div>
+      <div class="cfoot">${priceH}<a class="qbtn" href="https://wa.me/${WA}?text=${msg}" target="_blank" rel="noopener">${oos?'Notify Me →':'Get Quote →'}</a></div>
     </div>
   </div>`;
 }
 
-function noImg() {
-  return `<svg width="56" height="56" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="26" stroke="#222" stroke-width="2"/><circle cx="30" cy="30" r="8" stroke="#222" stroke-width="2"/><line x1="30" y1="4" x2="30" y2="22" stroke="#222" stroke-width="2"/><line x1="30" y1="38" x2="30" y2="56" stroke="#222" stroke-width="2"/><line x1="4" y1="30" x2="22" y2="30" stroke="#222" stroke-width="2"/><line x1="38" y1="30" x2="56" y2="30" stroke="#222" stroke-width="2"/></svg>`;
-}
+function wIcon(){return`<svg width="50" height="50" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="26" stroke="#222" stroke-width="2"/><circle cx="30" cy="30" r="8" stroke="#222" stroke-width="2"/><line x1="30" y1="4" x2="30" y2="22" stroke="#222" stroke-width="2"/><line x1="30" y1="38" x2="30" y2="56" stroke="#222" stroke-width="2"/><line x1="4" y1="30" x2="22" y2="30" stroke="#222" stroke-width="2"/><line x1="38" y1="30" x2="56" y2="30" stroke="#222" stroke-width="2"/></svg>`;}
 
-function showState(title,msg) {
-  document.getElementById('grid').innerHTML=`<div class="state"><h3>${title}</h3><p>${msg}</p></div>`;
-}
+function showState(t,m){document.getElementById('grid').innerHTML=`<div class="state"><h3>${t}</h3><p>${m}</p></div>`;}
 
 boot();
 </script>
