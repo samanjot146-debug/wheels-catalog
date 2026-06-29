@@ -559,47 +559,161 @@
   <div class="state">
     <div class="spinner"></div>
     <h3>Loading inventory…</h3>
-    <p>Fetching live stock from Superspeed</p>
+    <p>Fetching live inventory from all suppliers</p>
   </div>
 </div>
 
 
 <script>
 // ─────────────────────────────────────────────
-// CONFIG — update WORKER_URL after deploying
-// your Cloudflare Worker (superspeed-worker.js)
+// CONFIG
 // ─────────────────────────────────────────────
-const WORKER_URL  = 'https://superspeed-proxy.samanjot146.workers.dev';
-const WHATSAPP_NO = '12266981667';
+const WORKER_URL       = 'https://superspeed-proxy.samanjot146.workers.dev';
+const AUTOCOUNTRY_URL  = 'https://autocountry-production.s3.ca-central-1.amazonaws.com/customer_live_feed/4291Xprewhe_wheel_data.csv';
+const WHATSAPP_NO      = '12266981667';
 
 // ─────────────────────────────────────────────
 let allWheels = [];
-const activeStock = new Set(['In Stock', 'Low Stock']); // default visible
+const activeStock = new Set(['In Stock', 'Low Stock']);
 
-// ─── FETCH ───────────────────────────────────
+// ─── FETCH BOTH SUPPLIERS ────────────────────
 async function loadWheels() {
+  document.getElementById('wheelGrid').innerHTML = `
+    <div class="state"><div class="spinner"></div>
+    <h3>Loading inventory…</h3><p>Fetching from all suppliers</p></div>`;
+
+  const [superspeedWheels, autocountryWheels] = await Promise.allSettled([
+    loadSuperspeed(),
+    loadAutocountry(),
+  ]);
+
+  const ss  = superspeedWheels.status  === 'fulfilled' ? superspeedWheels.value  : [];
+  const ac  = autocountryWheels.status === 'fulfilled' ? autocountryWheels.value : [];
+
+  allWheels = [...ss, ...ac];
+
+  if (allWheels.length === 0) {
+    showState('No wheels found', 'Could not load from either supplier.');
+    return;
+  }
+
+  buildFilters(allWheels);
+  applyFilters();
+}
+
+async function loadSuperspeed() {
   try {
     const res  = await fetch(`${WORKER_URL}/all`);
     const json = await res.json();
-
-    if (!res.ok || json.error) {
-      throw new Error(json.error || `HTTP ${res.status}`);
-    }
-
-    allWheels = parseWheels(json);
-
-    if (allWheels.length === 0) {
-      showState('No wheels found', 'Check the worker and API credentials.');
-      return;
-    }
-
-    buildFilters(allWheels);
-    applyFilters();
-
+    if (!res.ok || json.error) throw new Error(json.error || `HTTP ${res.status}`);
+    return parseWheels(json);
   } catch (err) {
-    showState('Could not load inventory', `${err.message} — check the worker URL and credentials.`);
-    console.error('Superspeed load error:', err);
+    console.warn('Superspeed load failed:', err.message);
+    return [];
   }
+}
+
+async function loadAutocountry() {
+  try {
+    const res  = await fetch(AUTOCOUNTRY_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    return parseAutocountryCSV(text);
+  } catch (err) {
+    console.warn('Autocountry load failed:', err.message);
+    return [];
+  }
+}
+
+// ─── AUTOCOUNTRY CSV PARSER ──────────────────
+// Flexible mapper — handles various column name formats
+function parseAutocountryCSV(csv) {
+  const lines = csv.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  const rawHeaders = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+  const headers    = rawHeaders.map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+
+  // Map common column name variations to standard fields
+  const pick = (...keys) => {
+    for (const k of keys) {
+      const idx = headers.indexOf(k);
+      if (idx !== -1) return idx;
+    }
+    return -1;
+  };
+
+  const cols = {
+    sku    : pick('sku','part_number','item_number','part_no','partnumber'),
+    brand  : pick('brand','manufacturer','make','brand_name'),
+    model  : pick('model','model_name','product_name','name','description','style'),
+    diam   : pick('diameter','size','wheel_size','dia','wheel_diameter'),
+    width  : pick('width','wheel_width'),
+    et     : pick('offset','et','offset_et'),
+    pcd    : pick('bolt_pattern','pcd','lug_pattern','bolt_circle','bolt_pattern_mm'),
+    cb     : pick('center_bore','hub_bore','cb','centerbore','hub_diameter'),
+    finish : pick('finish','color','colour','finish_description','description_2'),
+    msrp   : pick('retail','msrp','retail_price','price','suggested_retail','dealer_price','cost'),
+    stock  : pick('quantity','stock','qty','qty_on_hand','available','inventory','quantity_on_hand','in_stock'),
+    image  : pick('image','image_url','image_1','photo','img','picture','img_url'),
+    eta    : pick('eta','arrival','est_arrival'),
+  };
+
+  const wheels = [];
+
+  for (const line of lines.slice(1)) {
+    if (!line.trim()) continue;
+
+    // Parse CSV respecting quoted fields
+    const vals = parseCSVLine(line);
+
+    const get = (col) => cols[col] >= 0 ? (vals[cols[col]] || '').replace(/"/g, '').trim() : '';
+
+    const rawStock = get('stock');
+    const qty      = parseInt(rawStock) || 0;
+    let inventory  = 'Out of Stock';
+    if      (rawStock.toLowerCase().includes('in stock')) inventory = 'In Stock';
+    else if (rawStock.toLowerCase().includes('low'))      inventory = 'Low Stock';
+    else if (qty > 3)  inventory = 'In Stock';
+    else if (qty > 0)  inventory = 'Low Stock';
+    else               inventory = 'Out of Stock';
+
+    const msrpRaw = parseFloat(get('msrp')) || 0;
+
+    wheels.push({
+      source   : 'autocountry',
+      sku      : get('sku'),
+      brand    : get('brand') || 'Autocountry',
+      model    : get('model'),
+      diameter : parseFloat(get('diam')) || 0,
+      width    : parseFloat(get('width')) || 0,
+      et       : parseFloat(get('et')) || 0,
+      pcd      : get('pcd'),
+      cb       : parseFloat(get('cb')) || 0,
+      finish   : get('finish'),
+      msrp     : msrpRaw,
+      inventory,
+      face_img : get('image'),
+      eta      : get('eta'),
+    });
+  }
+
+  return wheels.filter(w => w.sku || w.model);
+}
+
+// CSV line parser respecting quoted commas
+function parseCSVLine(line) {
+  const result = [];
+  let current  = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === ',' && !inQuotes) { result.push(current); current = ''; }
+    else { current += ch; }
+  }
+  result.push(current);
+  return result;
 }
 
 // ─── PARSE ───────────────────────────────────
@@ -784,12 +898,12 @@ function buildCard(w) {
     : '';
 
   // Price
-  const priceHtml = w.msrp > 0
+  const priceHtml = (w.msrp && w.msrp > 0)
     ? `<div class="price">
          <span class="price-label">MSRP</span>
          <span class="price-value">$${w.msrp.toFixed(0)}<span class="price-each">/ea</span></span>
        </div>`
-    : `<div class="price"><span class="price-label">Price</span><span style="color:var(--muted);font-size:12px">Call for quote</span></div>`;
+    : `<div class="price"><span class="price-label">Price</span><span style="color:var(--accent);font-size:12px;font-weight:700">Call for Quote</span></div>`;
 
   // WhatsApp quote link
   const msg = encodeURIComponent(
