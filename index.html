@@ -480,6 +480,34 @@
       .card-model { font-size: 13px; }
       .price-value { font-size: 15px; }
     }
+
+    /* ── Load More ───────────────────────────── */
+    .load-more-wrap {
+      text-align: center;
+      padding: 24px 0 8px;
+      grid-column: 1 / -1;
+    }
+
+    .load-more-btn {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 12px 32px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.03em;
+    }
+
+    .load-more-btn:hover { background: var(--accent-dim); }
+
+    .page-count {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -857,9 +885,15 @@ function applyFilters() {
   renderGrid(results);
 }
 
-// ─── RENDER ──────────────────────────────────
+// ─── RENDER with pagination ──────────────────
+const PAGE_SIZE = 60;
+let currentPage = 0;
+let currentWheels = [];
+
 function renderGrid(wheels) {
   const grid = document.getElementById('wheelGrid');
+  currentWheels = wheels;
+  currentPage   = 0;
 
   if (wheels.length === 0) {
     grid.innerHTML = `
@@ -870,7 +904,49 @@ function renderGrid(wheels) {
     return;
   }
 
-  grid.innerHTML = wheels.map(buildCard).join('');
+  const slice = wheels.slice(0, PAGE_SIZE);
+  grid.innerHTML = slice.map(buildCard).join('');
+  currentPage = 1;
+  appendLoadMore(grid, wheels);
+}
+
+function appendLoadMore(grid, wheels) {
+  // Remove old load-more if present
+  const old = grid.querySelector('.load-more-wrap');
+  if (old) old.remove();
+
+  const shown = Math.min(currentPage * PAGE_SIZE, wheels.length);
+  if (shown >= wheels.length) return;
+
+  const remaining = wheels.length - shown;
+  const wrap = document.createElement('div');
+  wrap.className = 'load-more-wrap';
+  wrap.innerHTML = `
+    <button class="load-more-btn" onclick="loadMore()">
+      Show More (${remaining} remaining)
+    </button>
+    <div class="page-count">Showing ${shown} of ${wheels.length}</div>`;
+  grid.appendChild(wrap);
+}
+
+function loadMore() {
+  const grid  = document.getElementById('wheelGrid');
+  const start = currentPage * PAGE_SIZE;
+  const slice = currentWheels.slice(start, start + PAGE_SIZE);
+
+  // Remove load-more button
+  const old = grid.querySelector('.load-more-wrap');
+  if (old) old.remove();
+
+  // Append new cards
+  const frag = document.createDocumentFragment();
+  const temp = document.createElement('div');
+  temp.innerHTML = slice.map(buildCard).join('');
+  while (temp.firstChild) frag.appendChild(temp.firstChild);
+  grid.appendChild(frag);
+
+  currentPage++;
+  appendLoadMore(grid, currentWheels);
 }
 
 function buildCard(w) {
