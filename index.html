@@ -380,15 +380,20 @@ function parseAutocountry(csv) {
     if(!line.trim()) continue;
     const v=parseLine(line).map(x=>x.replace(/^"|"$/g,'').trim());
     const g=i=>(i>=0&&i<v.length)?v[i]:'';
-    const qty=(parseInt(g(C.edm))||0)+(parseInt(g(C.oak))||0);
-    const inventory=qty>3?'In Stock':qty>0?'Low Stock':'Out of Stock';
+    const qtyOak=parseInt(g(C.oak))||0; // Ontario (Oakville)
+    const qtyEdm=parseInt(g(C.edm))||0; // Edmonton
+    const qty=qtyOak+qtyEdm;
+    let inventory,delivery;
+    if(qtyOak>0){inventory='In Stock';delivery='1-2 Business Days';}
+    else if(qtyEdm>0){inventory='In Stock';delivery='10-12 Business Days';}
+    else{inventory='Out of Stock';delivery=null;}
     const msrp=parseFloat((g(priceCol)||'0').replace(/[^0-9.]/g,''))||0;
     wheels.push({
       source:'autocountry',sku:g(C.sku),brand:g(C.brand)||'Unknown',
       model:g(C.model),diameter:parseFloat(g(C.diam))||0,
       width:parseFloat(g(C.width))||0,et:parseFloat(g(C.et))||0,
       pcd:g(C.pcd),cb:parseFloat(g(C.cb))||0,finish:g(C.finish),
-      msrp,inventory,face_img:g(C.img),eta:''
+      msrp,inventory,delivery,face_img:g(C.img),eta:''
     });
   }
   const result=wheels.filter(w=>w.sku||w.model);
@@ -579,8 +584,14 @@ function updateCount(){
 // ── CARD ──────────────────────────────────────
 function card(w){
   const inv=w.inventory||'Out of Stock';
-  const rc=inv==='In Stock'?'ri':inv==='Low Stock'?'rl':'ro';
   const oos=inv==='Out of Stock';
+  // For Autocountry: show delivery time badge instead of generic stock label
+  let rc,ribbonLabel;
+  if(w.delivery==='1-2 Business Days'){rc='ri';ribbonLabel='1-2 Bus. Days';}
+  else if(w.delivery==='10-12 Business Days'){rc='rl';ribbonLabel='10-12 Bus. Days';}
+  else if(inv==='In Stock'){rc='ri';ribbonLabel='In Stock';}
+  else if(inv==='Low Stock'){rc='rl';ribbonLabel='Low Stock';}
+  else{rc='ro';ribbonLabel='Out of Stock';}
   const imgH=w.face_img
     ?`<img src="${w.face_img}" alt="${w.model}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
     :`<div class="no-img">${wIcon()}</div>`;
@@ -590,7 +601,7 @@ function card(w){
   const size=w.diameter&&w.width?`${w.diameter}" × ${w.width}`:'—';
   const msg=encodeURIComponent(`Hi, I'm interested in the ${w.brand} ${w.model} ${w.diameter?w.diameter+'"':''} x ${w.width}${w.finish?' – '+w.finish:''} wheel${w.pcd?' ('+w.pcd+')':''}. ${w.sku?'SKU: '+w.sku+'. ':''}Can you give me a price for a set of 4?`);
   return`<div class="card${oos?' oos':''}">
-    <div class="img-wrap">${imgH}<div class="ribbon ${rc}"><span class="rdot"></span>${inv}</div></div>
+    <div class="img-wrap">${imgH}<div class="ribbon ${rc}"><span class="rdot"></span>${ribbonLabel}</div></div>
     <div class="cbody">
       <div><div class="cbrand">${w.brand}</div><div class="cmodel">${w.model||'N/A'}</div><div class="cfinish">${w.finish||''}</div></div>
       <div class="specs">
