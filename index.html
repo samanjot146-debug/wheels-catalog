@@ -90,7 +90,7 @@
     /* ── Filters ─────────────────────────────── */
     .filters {
       display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
       gap: 10px;
       background: var(--card);
       border: 1px solid var(--border);
@@ -200,6 +200,15 @@
       background: rgba(255,68,68,0.08);
     }
     .sBtn.on[data-stock="Out of Stock"] .sBtn-dot { background: var(--out-stock); }
+
+    /* Brand pills — same style as stock but always green when active */
+    .brandPill { }
+    .brandPill.on {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .brandPill.on .sBtn-dot { background: var(--accent); }
 
     /* ── Stats bar ───────────────────────────── */
     .stats-bar {
@@ -515,8 +524,8 @@
 <!-- ── Header ───────────────────────────────────── -->
 <div class="catalog-header">
   <div>
-    <h2>Superspeed <em>Wheels</em></h2>
-    <p>Live inventory &mdash; updates every time you load</p>
+    <h2>Wheel <em>Catalog</em></h2>
+    <p>Live inventory from all suppliers</p>
   </div>
   <div class="live-badge"><div class="live-dot"></div> Live</div>
 </div>
@@ -526,12 +535,6 @@
   <div class="filter-group">
     <label class="filter-label">Search</label>
     <input type="text" id="search" placeholder="Model name or SKU…" oninput="applyFilters()">
-  </div>
-  <div class="filter-group">
-    <label class="filter-label">Brand</label>
-    <select id="fBrand" onchange="applyFilters()">
-      <option value="">All brands</option>
-    </select>
   </div>
   <div class="filter-group">
     <label class="filter-label">Size</label>
@@ -552,18 +555,19 @@
     </select>
   </div>
   <div class="filter-group full">
+    <label class="filter-label">Brand</label>
+    <div class="stock-buttons" id="brandPills"></div>
+  </div>
+  <div class="filter-group full">
     <label class="filter-label">Availability</label>
     <div class="stock-buttons">
-      <button class="sBtn on" data-stock="In Stock"
-        onclick="toggleStock(this)">
+      <button class="sBtn on" data-stock="In Stock" onclick="toggleStock(this)">
         <span class="sBtn-dot"></span>In Stock
       </button>
-      <button class="sBtn on" data-stock="Low Stock"
-        onclick="toggleStock(this)">
+      <button class="sBtn on" data-stock="Low Stock" onclick="toggleStock(this)">
         <span class="sBtn-dot"></span>Low Stock
       </button>
-      <button class="sBtn" data-stock="Out of Stock"
-        onclick="toggleStock(this)">
+      <button class="sBtn" data-stock="Out of Stock" onclick="toggleStock(this)">
         <span class="sBtn-dot"></span>Out of Stock
       </button>
     </div>
@@ -654,67 +658,77 @@ async function loadAutocountry() {
 }
 
 // ─── AUTOCOUNTRY CSV PARSER ──────────────────
-// Flexible mapper — handles various column name formats
 function parseAutocountryCSV(csv) {
   const lines = csv.split(/\r?\n/).filter(l => l.trim());
-  if (lines.length < 2) return [];
+  if (lines.length < 2) { console.warn('Autocountry: CSV too short'); return []; }
 
   const rawHeaders = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-  const headers    = rawHeaders.map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+  const headers    = rawHeaders.map(h => h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''));
 
-  // Map common column name variations to standard fields
+  console.log('Autocountry headers:', rawHeaders);
+
   const pick = (...keys) => {
     for (const k of keys) {
-      const idx = headers.indexOf(k);
+      const idx = headers.findIndex(h => h === k || h.includes(k) || k.includes(h));
       if (idx !== -1) return idx;
     }
     return -1;
   };
 
   const cols = {
-    sku    : pick('sku','part_number','item_number','part_no','partnumber'),
-    brand  : pick('brand','manufacturer','make','brand_name'),
-    model  : pick('model','model_name','product_name','name','description','style'),
-    diam   : pick('diameter','size','wheel_size','dia','wheel_diameter'),
-    width  : pick('width','wheel_width'),
-    et     : pick('offset','et','offset_et'),
-    pcd    : pick('bolt_pattern','pcd','lug_pattern','bolt_circle','bolt_pattern_mm'),
-    cb     : pick('center_bore','hub_bore','cb','centerbore','hub_diameter'),
-    finish : pick('finish','color','colour','finish_description','description_2'),
-    msrp   : pick('retail','msrp','retail_price','price','suggested_retail','dealer_price','cost'),
-    stock  : pick('quantity','stock','qty','qty_on_hand','available','inventory','quantity_on_hand','in_stock'),
-    image  : pick('image','image_url','image_1','photo','img','picture','img_url'),
-    eta    : pick('eta','arrival','est_arrival'),
+    sku    : pick('sku','part_number','partnum','part_no','item_number','item_no','part','item','product_code','product_id','id'),
+    brand  : pick('brand','manufacturer','make','brand_name','mfg','mfr','supplier','vendor'),
+    model  : pick('model','model_name','product_name','name','description','style','model_number','wheel_model','product','desc'),
+    diam   : pick('diameter','wheel_diameter','rim_diameter','size','wheel_size','rim_size','dia'),
+    width  : pick('width','wheel_width','rim_width'),
+    et     : pick('offset','et','wheel_offset'),
+    pcd    : pick('bolt_pattern','pcd','lug_pattern','bolt_circle','bolt_spacing','bolt','lug'),
+    cb     : pick('center_bore','hub_bore','cb','centerbore','hub_diameter','bore','center_hole'),
+    finish : pick('finish','color','colour','finish_description','finish_color','wheel_finish','finish_name','description_2','color_description'),
+    msrp   : pick('retail','msrp','retail_price','price','suggested_retail','map','list','unit_price','dealer_price','cost','selling_price'),
+    stock  : pick('quantity','stock','qty','qty_on_hand','qoh','available','inventory','on_hand','avail','stock_qty','in_stock','quantity_on_hand'),
+    image  : pick('image','image_url','image_1','photo','img','picture','img_url','image_link','photo_url','thumb','thumbnail','image_file'),
+    eta    : pick('eta','arrival','est_arrival','expected_date'),
+    size   : pick('size','wheel_size','rim_size'), // combined "18x8.5" field
   };
+
+  console.log('Autocountry col mapping:', Object.fromEntries(Object.entries(cols).map(([k,v]) => [k, v >= 0 ? rawHeaders[v] : 'NOT FOUND'])));
 
   const wheels = [];
 
   for (const line of lines.slice(1)) {
     if (!line.trim()) continue;
-
-    // Parse CSV respecting quoted fields
     const vals = parseCSVLine(line);
+    const get  = (col) => cols[col] >= 0 ? (vals[cols[col]] || '').replace(/^"|"$/g, '').trim() : '';
 
-    const get = (col) => cols[col] >= 0 ? (vals[cols[col]] || '').replace(/"/g, '').trim() : '';
+    // Handle combined size field like "18x8.5"
+    let diam = parseFloat(get('diam')) || 0;
+    let width = parseFloat(get('width')) || 0;
+    if ((!diam || !width) && cols.size >= 0) {
+      const sizeStr = get('size');
+      const match   = sizeStr.match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
+      if (match) { diam = parseFloat(match[1]); width = parseFloat(match[2]); }
+    }
 
     const rawStock = get('stock');
     const qty      = parseInt(rawStock) || 0;
+    const stockStr = rawStock.toLowerCase();
     let inventory  = 'Out of Stock';
-    if      (rawStock.toLowerCase().includes('in stock')) inventory = 'In Stock';
-    else if (rawStock.toLowerCase().includes('low'))      inventory = 'Low Stock';
+    if      (stockStr.includes('in stock') || stockStr.includes('yes')) inventory = 'In Stock';
+    else if (stockStr.includes('low') || (qty > 0 && qty <= 3))         inventory = 'Low Stock';
     else if (qty > 3)  inventory = 'In Stock';
-    else if (qty > 0)  inventory = 'Low Stock';
     else               inventory = 'Out of Stock';
 
-    const msrpRaw = parseFloat(get('msrp')) || 0;
+    const msrpRaw = parseFloat(get('msrp').replace(/[^0-9.]/g, '')) || 0;
+    const brandVal = get('brand') || 'Unknown';
 
     wheels.push({
       source   : 'autocountry',
       sku      : get('sku'),
-      brand    : get('brand') || 'Autocountry',
+      brand    : brandVal,
       model    : get('model'),
-      diameter : parseFloat(get('diam')) || 0,
-      width    : parseFloat(get('width')) || 0,
+      diameter : diam,
+      width,
       et       : parseFloat(get('et')) || 0,
       pcd      : get('pcd'),
       cb       : parseFloat(get('cb')) || 0,
@@ -726,7 +740,9 @@ function parseAutocountryCSV(csv) {
     });
   }
 
-  return wheels.filter(w => w.sku || w.model);
+  const result = wheels.filter(w => w.sku || w.model);
+  console.log(`Autocountry: parsed ${result.length} wheels from ${lines.length - 1} rows`);
+  return result;
 }
 
 // CSV line parser respecting quoted commas
@@ -814,16 +830,32 @@ function parseCSV(csv) {
 }
 
 // ─── FILTERS ─────────────────────────────────
+let activeBrands = new Set(); // empty = all brands shown
+
 function buildFilters(wheels) {
   const brands  = [...new Set(wheels.map(w => w.brand).filter(Boolean).sort())];
   const diams   = [...new Set(wheels.map(w => w.diameter).filter(Boolean).sort((a,b)=>a-b))];
   const pcds    = [...new Set(wheels.map(w => w.pcd).filter(Boolean).sort())];
   const finishes= [...new Set(wheels.map(w => w.finish).filter(Boolean).sort())];
 
-  fillSelect('fBrand',  brands,   v => v);
+  // Brand pills
+  const pillContainer = document.getElementById('brandPills');
+  pillContainer.innerHTML = brands.map(b => `
+    <button class="sBtn brandPill on" data-brand="${b}" onclick="toggleBrand(this)">
+      <span class="sBtn-dot"></span>${b}
+    </button>`).join('');
+  activeBrands = new Set(brands); // all on by default
+
   fillSelect('fDiam',   diams,    v => `${v}"`);
   fillSelect('fPcd',    pcds,     v => v);
   fillSelect('fFinish', finishes, v => v);
+}
+
+function toggleBrand(btn) {
+  const b = btn.dataset.brand;
+  if (btn.classList.toggle('on')) { activeBrands.add(b); }
+  else { activeBrands.delete(b); }
+  applyFilters();
 }
 
 function fillSelect(id, items, label) {
@@ -843,7 +875,7 @@ function toggleStock(btn) {
 
 function applyFilters() {
   const search = document.getElementById('search').value.trim().toLowerCase();
-  const brand  = document.getElementById('fBrand').value;
+  // brand handled via activeBrands Set (pills)
   const diam   = document.getElementById('fDiam').value;
   const pcd    = document.getElementById('fPcd').value;
   const finish = document.getElementById('fFinish').value;
@@ -851,7 +883,7 @@ function applyFilters() {
 
   let results = allWheels.filter(w => {
     if (!activeStock.has(w.inventory)) return false;
-    if (brand  && w.brand !== brand) return false;
+    if (activeBrands.size > 0 && !activeBrands.has(w.brand)) return false;
     if (diam   && String(w.diameter) !== String(diam)) return false;
     if (pcd    && w.pcd !== pcd) return false;
     if (finish && w.finish !== finish) return false;
