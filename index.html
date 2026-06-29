@@ -695,33 +695,48 @@ function parseAutocountryCSV(csv) {
 
   console.log('Autocountry col mapping:', Object.fromEntries(Object.entries(cols).map(([k,v]) => [k, v >= 0 ? rawHeaders[v] : 'NOT FOUND'])));
 
+  // Find warehouse stock columns specifically (AC-EDM, AC-OAK)
+  const idxEdm = headers.findIndex(h => h === 'acedm' || h.includes('edm'));
+  const idxOak = headers.findIndex(h => h === 'acoak' || h.includes('oak'));
+  console.log('Autocountry stock cols — EDM:', idxEdm, 'OAK:', idxOak);
+
   const wheels = [];
 
   for (const line of lines.slice(1)) {
     if (!line.trim()) continue;
     const vals = parseCSVLine(line);
     const get  = (col) => cols[col] >= 0 ? (vals[cols[col]] || '').replace(/^"|"$/g, '').trim() : '';
+    const getIdx = (idx) => idx >= 0 ? (vals[idx] || '').replace(/^"|"$/g, '').trim() : '0';
 
     // Handle combined size field like "18x8.5"
-    let diam = parseFloat(get('diam')) || 0;
+    let diam  = parseFloat(get('diam'))  || 0;
     let width = parseFloat(get('width')) || 0;
     if ((!diam || !width) && cols.size >= 0) {
-      const sizeStr = get('size');
-      const match   = sizeStr.match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
+      const match = get('size').match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
       if (match) { diam = parseFloat(match[1]); width = parseFloat(match[2]); }
     }
 
-    const rawStock = get('stock');
-    const qty      = parseInt(rawStock) || 0;
-    const stockStr = rawStock.toLowerCase();
-    let inventory  = 'Out of Stock';
-    if      (stockStr.includes('in stock') || stockStr.includes('yes')) inventory = 'In Stock';
-    else if (stockStr.includes('low') || (qty > 0 && qty <= 3))         inventory = 'Low Stock';
-    else if (qty > 3)  inventory = 'In Stock';
-    else               inventory = 'Out of Stock';
+    // Stock: sum AC-EDM + AC-OAK warehouse quantities
+    const qtyEdm = parseInt(getIdx(idxEdm)) || 0;
+    const qtyOak = parseInt(getIdx(idxOak)) || 0;
+    const totalQty = qtyEdm + qtyOak;
+    let inventory = 'Out of Stock';
+    if      (totalQty > 3)  inventory = 'In Stock';
+    else if (totalQty > 0)  inventory = 'Low Stock';
+    else                    inventory = 'Out of Stock';
 
-    const msrpRaw = parseFloat(get('msrp').replace(/[^0-9.]/g, '')) || 0;
-    const brandVal = get('brand') || 'Unknown';
+    // Price: prefer MAP, fall back to Cost
+    const mapPrice  = parseFloat((get('msrp') || '0').replace(/[^0-9.]/g, '')) || 0;
+    const brandVal  = get('brand') || 'Unknown';
+
+    // Images: use first available
+    const imgCols = [cols.image,
+      headers.indexOf('image_2'), headers.indexOf('image_3')];
+    const face_img = imgCols
+      .filter(i => i >= 0)
+      .map(i => (vals[i] || '').replace(/^"|"$/g, '').trim())
+      .filter(Boolean)
+      .join('/');
 
     wheels.push({
       source   : 'autocountry',
@@ -734,15 +749,17 @@ function parseAutocountryCSV(csv) {
       pcd      : get('pcd'),
       cb       : parseFloat(get('cb')) || 0,
       finish   : get('finish'),
-      msrp     : msrpRaw,
+      msrp     : mapPrice,
       inventory,
-      face_img : get('image'),
+      face_img,
       eta      : get('eta'),
     });
   }
 
   const result = wheels.filter(w => w.sku || w.model);
-  console.log(`Autocountry: parsed ${result.length} wheels from ${lines.length - 1} rows`);
+  const inStock = result.filter(w => w.inventory === 'In Stock').length;
+  const lowStock = result.filter(w => w.inventory === 'Low Stock').length;
+  console.log(`Autocountry: ${result.length} wheels — ${inStock} in stock, ${lowStock} low stock`);
   return result;
 }
 
