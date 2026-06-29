@@ -183,6 +183,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 <div class="stats">
   <span id="rcount">Loading…</span>
   <select class="sort" id="sortby" onchange="applyFilters()">
+    <option value="avail">Availability</option>
     <option value="model">Name A–Z</option>
     <option value="price_asc">Price Low–High</option>
     <option value="price_desc">Price High–Low</option>
@@ -530,13 +531,22 @@ function applyFilters() {
     return true;
   });
 
+  const availRank = w => {
+    if(w.delivery==='1-2 Business Days') return 1;
+    if(!w.delivery && w.inventory==='In Stock')  return 1;
+    if(!w.delivery && w.inventory==='Low Stock') return 2;
+    if(w.delivery==='10-12 Business Days') return 3;
+    return 4;
+  };
+
   filteredWheels.sort((a,b)=>{
     switch(sortBy){
       case 'price_asc':  return a.msrp-b.msrp;
       case 'price_desc': return b.msrp-a.msrp;
       case 'size_asc':   return a.diameter-b.diameter||a.width-b.width;
       case 'size_desc':  return b.diameter-a.diameter||b.width-a.width;
-      default:           return (a.model||'').localeCompare(b.model||'');
+      case 'model':      return (a.model||'').localeCompare(b.model||'');
+      default:           return availRank(a)-availRank(b)||(a.model||'').localeCompare(b.model||'');
     }
   });
 
