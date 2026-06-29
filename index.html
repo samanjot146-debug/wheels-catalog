@@ -615,7 +615,7 @@ async function loadSuperspeed() {
 
 async function loadAutocountry() {
   try {
-    const res  = await fetch(AUTOCOUNTRY_URL);
+    const res  = await fetch(`${WORKER_URL}/autocountry`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     return parseAutocountryCSV(text);
@@ -756,11 +756,11 @@ function normalize(w) {
   }
   // API column is "INVENTORY ON" (Ontario stock) — map to inventory
   out.inventory = normalizeStock(out['inventory on'] ?? out.inventory ?? '');
-  // Fix image URLs: API returns localhost URLs — route through our worker proxy
+  // Fix image URLs: replace localhost with real B2B server path
   if (out.face_img) {
     out.face_img = out.face_img.replace(
-      /https?:\/\/localhost:\d+\/api\/Product\/GetImage\?imgName=([^/]+)/g,
-      (match, imgName) => `${WORKER_URL}/img/${encodeURIComponent(imgName)}`
+      /https?:\/\/localhost:\d+\/api\/Product\/GetImage\?imgName=/g,
+      'https://b2b.super-speed.ca/webapi/api//Product/GetImage?imgName='
     );
   }
   // Ensure numeric fields
