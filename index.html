@@ -531,16 +531,17 @@ function applyFilters() {
     return true;
   });
 
-  const availRank = w => {
+  // Availability rank: 1-2 days first, then 10-12 days, then out of stock
+  function availRank(w) {
     if(w.delivery==='1-2 Business Days') return 1;
-    if(!w.delivery && w.inventory==='In Stock')  return 1;
-    if(!w.delivery && w.inventory==='Low Stock') return 2;
-    if(w.delivery==='10-12 Business Days') return 3;
-    return 4;
-  };
+    if(!w.delivery && (w.inventory==='In Stock'||w.inventory==='Low Stock')) return 1;
+    if(w.delivery==='10-12 Business Days') return 2;
+    return 3;
+  }
 
   filteredWheels.sort((a,b)=>{
     switch(sortBy){
+      case 'avail':      return availRank(a)-availRank(b)||(a.model||'').localeCompare(b.model||'');
       case 'price_asc':  return a.msrp-b.msrp;
       case 'price_desc': return b.msrp-a.msrp;
       case 'size_asc':   return a.diameter-b.diameter||a.width-b.width;
