@@ -621,10 +621,24 @@ function parseWheels(json) {
 // Normalize field names to lowercase
 function normalizeAll(arr) { return arr.map(normalize); }
 
+function normalizeStock(val) {
+  if (!val) return 'Out of Stock';
+  const v = (val + '').toLowerCase().trim();
+  if (v === 'in stock') return 'In Stock';
+  if (v.startsWith('low')) return 'Low Stock'; // covers "Low Inventoy" typo
+  return 'Out of Stock';
+}
+
 function normalize(w) {
   const out = {};
   for (const [k, v] of Object.entries(w)) {
-    out[k.toLowerCase()] = v;
+    out[k.toLowerCase().trim()] = typeof v === 'string' ? v.trim() : v;
+  }
+  // API column is "INVENTORY ON" (Ontario stock) — map to inventory
+  out.inventory = normalizeStock(out['inventory on'] ?? out.inventory ?? '');
+  // Fix image URLs: API returns localhost, swap for real server
+  if (out.face_img) {
+    out.face_img = out.face_img.replace(/https?:\/\/localhost:\d+/g, 'https://b2b.super-speed.ca');
   }
   // Ensure numeric fields
   out.diameter = parseFloat(out.diameter) || 0;
@@ -739,9 +753,10 @@ function buildCard(w) {
                   : 'out-stock';
   const cardCls  = inv === 'Out of Stock' ? 'card oos' : 'card';
 
-  // Image — face_img can be multiple URLs separated by /
-  const imgSrc = (w.face_img || '').split('/').filter(s => s.startsWith('http'))[0]
-              || (w.face_img || '').trim();
+  // Images are separated by /http — split correctly then take first
+  const rawImgs = (w.face_img || '');
+  const imgParts = rawImgs.split('/http').map((s, i) => i === 0 ? s : 'http' + s).filter(s => s.startsWith('http'));
+  const imgSrc = imgParts[0] || '';
 
   const imgHtml = imgSrc
     ? `<img src="${imgSrc}" alt="${w.model}" loading="lazy" onerror="this.parentNode.innerHTML=wheelIcon()">`
