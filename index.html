@@ -120,9 +120,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
   #grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
 }
 /* Order modal */
-.ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center;padding:16px}
-.ovl.open{display:flex}
-.omod{background:var(--card);border:1px solid var(--border);width:100%;max-width:440px;max-height:88vh;overflow-y:auto;border-radius:var(--r);padding:20px}
+.ovl{display:none;position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,.7);z-index:999}
+.ovl.open{display:block}
+.omod{position:absolute;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);width:calc(100% - 32px);max-width:440px;max-height:80vh;overflow-y:auto;border-radius:var(--r);padding:20px}
 .osum{background:#181818;border:1px solid #2a2a2a;border-radius:var(--rs);padding:12px;margin-bottom:16px;font-size:13px;line-height:1.5;color:#ddd}
 .ohd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
 .ohd h3{font-size:18px;font-weight:800}
@@ -692,12 +692,21 @@ function openOrder(btn){
   document.getElementById('ook').style.display='none';
   document.getElementById('oerr').style.display='none';
   document.getElementById('orderForm').reset();
-  document.getElementById('ovl').classList.add('open');
-  document.body.style.overflow='hidden';
+  const ovl=document.getElementById('ovl');
+  const mod=ovl.querySelector('.omod');
+  ovl.style.height=document.documentElement.scrollHeight+'px';
+  ovl.classList.add('open');
+  const rect=btn.getBoundingClientRect();
+  const btnDocTop=rect.top+window.pageYOffset;
+  mod.style.top=Math.max(20,btnDocTop-20)+'px';
+  requestAnimationFrame(()=>{
+    const modH=mod.offsetHeight;
+    const maxTop=document.documentElement.scrollHeight-modH-20;
+    mod.style.top=Math.max(20,Math.min(btnDocTop-20,maxTop))+'px';
+  });
 }
 function closeOrder(){
   document.getElementById('ovl').classList.remove('open');
-  document.body.style.overflow='';
 }
 document.getElementById('ovl').addEventListener('click',e=>{if(e.target.id==='ovl')closeOrder();});
 
