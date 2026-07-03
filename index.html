@@ -119,9 +119,49 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
   .fg:first-child,.fg.full{grid-column:1/-1}
   #grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
 }
+/* Order modal */
+.ovl{display:none;position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,.7);z-index:999}
+.ovl.open{display:block}
+.omod{position:absolute;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);width:calc(100% - 32px);max-width:440px;max-height:80vh;overflow-y:auto;border-radius:var(--r);padding:20px}
+.osum{background:#181818;border:1px solid #2a2a2a;border-radius:var(--rs);padding:12px;margin-bottom:16px;font-size:13px;line-height:1.5;color:#ddd}
+.ohd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.ohd h3{font-size:18px;font-weight:800}
+.oclose{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:4px 6px}
+.ofg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.ofg label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle)}
+.ofg input,.ofg textarea{background:#181818;border:1px solid #2a2a2a;border-radius:var(--rs);color:var(--text);padding:12px;font-size:16px;outline:none;width:100%;font-family:inherit;resize:vertical}
+.ofg input:focus,.ofg textarea:focus{border-color:var(--accent)}
+.osend{width:100%;background:var(--accent);color:#000;border:none;border-radius:var(--rs);padding:14px;font-size:15px;font-weight:800;cursor:pointer}
+.osend:disabled{opacity:.6;cursor:not-allowed}
+.oerr{color:var(--out);font-size:12px;margin-top:8px;display:none}
+.ook{text-align:center;padding:20px 0}
+.ook h3{color:var(--accent);font-size:18px;margin-bottom:8px}
+.ook p{color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
+
+<!-- Order Modal -->
+<div class="ovl" id="ovl">
+  <div class="omod">
+    <div id="oform">
+      <div class="ohd"><h3>Request This Wheel</h3><button class="oclose" onclick="closeOrder()" aria-label="Close">&times;</button></div>
+      <div class="osum" id="osum"></div>
+      <form id="orderForm" onsubmit="submitOrder(event)">
+        <div class="ofg"><label>Name</label><input type="text" id="oname" required autocomplete="name"></div>
+        <div class="ofg"><label>Phone</label><input type="tel" id="ophone" required autocomplete="tel" placeholder="226-xxx-xxxx"></div>
+        <div class="ofg"><label>Email (optional)</label><input type="email" id="oemail" autocomplete="email"></div>
+        <div class="ofg"><label>Note (optional)</label><textarea id="onote" rows="2" placeholder="Vehicle, timeline, questions..."></textarea></div>
+        <button class="osend" type="submit" id="osendbtn">Send Request</button>
+        <div class="oerr" id="oerr">Something went wrong — please call 226-698-1667 instead.</div>
+      </form>
+    </div>
+    <div class="ook" id="ook" style="display:none">
+      <h3>Request Sent ✓</h3>
+      <p>We'll text or call you shortly to confirm availability and next steps.</p>
+    </div>
+  </div>
+</div>
 
 <!-- Header -->
 <div class="hdr">
@@ -622,8 +662,8 @@ function card(w){
     :`<div class="price"><span class="plabel">Price</span><span class="pcall">Call for Quote</span></div>`;
   const size=w.diameter&&w.width?`${w.diameter}" × ${w.width}`:'—';
   const depText=setPrice>0?` Set of 4: $${setPrice.toFixed(0)}. 50% deposit to order: $${deposit.toFixed(0)}.`:'';
-  const summary=`${w.brand} ${w.model} ${w.diameter?w.diameter+'"':''} x ${w.width}${w.finish?' – '+w.finish:''} wheel${w.pcd?' ('+w.pcd+')':''}.${w.sku?' SKU: '+w.sku+'.':''}${depText} Can you confirm availability and next steps?`;
-  const orderUrl=`https://presidentwheels.ca/contact-us?wheel=${encodeURIComponent(summary)}`;
+  const summary=`${w.brand} ${w.model} ${w.diameter?w.diameter+'"':''} x ${w.width}${w.finish?' – '+w.finish:''} wheel${w.pcd?' ('+w.pcd+')':''}.${w.sku?' SKU: '+w.sku+'.':''}${depText}`;
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
   return`<div class="card${oos?' oos':''}">
     <div class="img-wrap">${imgH}<div class="ribbon ${rc}"><span class="rdot"></span>${ribbonLabel}</div></div>
     <div class="cbody">
@@ -634,7 +674,7 @@ function card(w){
         <div class="spec"><span class="sl">Offset</span><span class="sv">${w.et?'ET'+w.et:'—'}</span></div>
         <div class="spec"><span class="sl">Centre Bore</span><span class="sv">${w.cb||'—'}</span></div>
       </div>
-      <div class="cfoot">${priceH}<a class="qbtn" href="${orderUrl}" target="_blank" rel="noopener">${oos?'Notify Me →':'Order Now →'}</a></div>
+      <div class="cfoot">${priceH}<button type="button" class="qbtn" data-summary="${esc(summary)}" onclick="openOrder(this)">${oos?'Notify Me →':'Order Now →'}</button></div>
     </div>
   </div>`;
 }
@@ -642,6 +682,67 @@ function card(w){
 function wIcon(){return`<svg width="50" height="50" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="26" stroke="#222" stroke-width="2"/><circle cx="30" cy="30" r="8" stroke="#222" stroke-width="2"/><line x1="30" y1="4" x2="30" y2="22" stroke="#222" stroke-width="2"/><line x1="30" y1="38" x2="30" y2="56" stroke="#222" stroke-width="2"/><line x1="4" y1="30" x2="22" y2="30" stroke="#222" stroke-width="2"/><line x1="38" y1="30" x2="56" y2="30" stroke="#222" stroke-width="2"/></svg>`;}
 
 function showState(t,m){document.getElementById('grid').innerHTML=`<div class="state"><h3>${t}</h3><p>${m}</p></div>`;}
+
+// ── ORDER MODAL ───────────────────────────────
+let curSummary='';
+function openOrder(btn){
+  curSummary=btn.getAttribute('data-summary');
+  document.getElementById('osum').textContent=curSummary;
+  document.getElementById('oform').style.display='block';
+  document.getElementById('ook').style.display='none';
+  document.getElementById('oerr').style.display='none';
+  document.getElementById('orderForm').reset();
+  const ovl=document.getElementById('ovl');
+  const mod=ovl.querySelector('.omod');
+  ovl.style.height=document.documentElement.scrollHeight+'px';
+  ovl.classList.add('open');
+  const rect=btn.getBoundingClientRect();
+  const btnDocTop=rect.top+window.pageYOffset;
+  mod.style.top=Math.max(20,btnDocTop-320)+'px';
+  requestAnimationFrame(()=>{
+    const modH=mod.offsetHeight;
+    const maxTop=document.documentElement.scrollHeight-modH-20;
+    mod.style.top=Math.max(20,Math.min(btnDocTop-320,maxTop))+'px';
+  });
+}
+function closeOrder(){
+  document.getElementById('ovl').classList.remove('open');
+}
+document.getElementById('ovl').addEventListener('click',e=>{if(e.target.id==='ovl')closeOrder();});
+
+async function submitOrder(e){
+  e.preventDefault();
+  const btn=document.getElementById('osendbtn');
+  const errEl=document.getElementById('oerr');
+  errEl.style.display='none';
+  btn.disabled=true;btn.textContent='Sending...';
+  const name=document.getElementById('oname').value.trim();
+  const phone=document.getElementById('ophone').value.trim();
+  const email=document.getElementById('oemail').value.trim();
+  const note=document.getElementById('onote').value.trim();
+  try{
+    const res=await fetch('https://formspree.io/f/mjgqyapz',{
+      method:'POST',
+      headers:{'Accept':'application/json','Content-Type':'application/json'},
+      body:JSON.stringify({
+        name, phone, email,
+        wheel:curSummary,
+        note,
+        _subject:'New Wheel Order Request — '+name
+      })
+    });
+    if(res.ok){
+      document.getElementById('oform').style.display='none';
+      document.getElementById('ook').style.display='block';
+    } else {
+      throw new Error('Formspree error');
+    }
+  }catch(err){
+    errEl.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='Send Request';
+  }
+}
 
 boot();
 </script>
