@@ -698,11 +698,11 @@ function openOrder(btn){
   ovl.classList.add('open');
   const rect=btn.getBoundingClientRect();
   const btnDocTop=rect.top+window.pageYOffset;
-  mod.style.top=Math.max(20,btnDocTop-160)+'px';
+  mod.style.top=Math.max(20,btnDocTop-320)+'px';
   requestAnimationFrame(()=>{
     const modH=mod.offsetHeight;
     const maxTop=document.documentElement.scrollHeight-modH-20;
-    mod.style.top=Math.max(20,Math.min(btnDocTop-160,maxTop))+'px';
+    mod.style.top=Math.max(20,Math.min(btnDocTop-320,maxTop))+'px';
   });
 }
 function closeOrder(){
